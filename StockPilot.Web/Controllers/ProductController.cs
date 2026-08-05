@@ -13,9 +13,37 @@ namespace StockPilot.Web.Controllers
             _productService = productService;
         }
 
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(int page = 1)
         {
-            var products = await _productService.GetAllAsync();
+            const int pageSize = 10;
+
+            var allProducts = await _productService.GetAllAsync();
+
+            int totalProductCount = allProducts.Count;
+
+            int totalPages = (int)Math.Ceiling(
+                totalProductCount / (double)pageSize
+            );
+
+            if (page < 1)
+            {
+                page = 1;
+            }
+
+            if (totalPages > 0 && page > totalPages)
+            {
+                page = totalPages;
+            }
+
+            var products = allProducts
+                .OrderBy(product => product.ProductId)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToList();
+
+            ViewBag.CurrentPage = page;
+            ViewBag.TotalPages = totalPages;
+            ViewBag.TotalProductCount = totalProductCount;
 
             return View(products);
         }

@@ -2,6 +2,10 @@
 
 @{
     ViewData["Title"] = "Products";
+
+    int currentPage = ViewBag.CurrentPage ?? 1;
+    int totalPages = ViewBag.TotalPages ?? 0;
+    int totalProductCount = ViewBag.TotalProductCount ?? 0;
 }
 
 <div class="container-fluid">
@@ -64,7 +68,7 @@
                 <strong>Product List</strong>
 
                 <span class="badge bg-primary rounded-pill">
-                    @Model.Count Products
+                    @totalProductCount Products
                 </span>
             </div>
 
@@ -172,6 +176,50 @@
                     </table>
                 </div>
             </div>
+            @if (totalPages > 1)
+            {
+                <div class="card-footer bg-white py-3">
+                    <nav aria-label="Product pages">
+                        <ul class="pagination justify-content-center mb-0">
+
+                            <li class="page-item @(currentPage == 1 ? "disabled" : "")">
+                                <a class="page-link"
+                                   asp-controller="Product"
+                                   asp-action="Index"
+                                   asp-route-page="@(currentPage - 1)">
+                                    <i class="bi bi-chevron-left me-1"></i>
+                                    Previous
+                                </a>
+                            </li>
+
+                            @for (int pageNumber = 1;
+                                                pageNumber <= totalPages;
+                                                pageNumber++)
+                            {
+                                <li class="page-item @(currentPage == pageNumber ? "active" : "")">
+                                    <a class="page-link"
+                                       asp-controller="Product"
+                                       asp-action="Index"
+                                       asp-route-page="@pageNumber">
+                                        @pageNumber
+                                    </a>
+                                </li>
+                            }
+
+                            <li class="page-item @(currentPage == totalPages ? "disabled" : "")">
+                                <a class="page-link"
+                                   asp-controller="Product"
+                                   asp-action="Index"
+                                   asp-route-page="@(currentPage + 1)">
+                                    Next
+                                    <i class="bi bi-chevron-right ms-1"></i>
+                                </a>
+                            </li>
+
+                        </ul>
+                    </nav>
+                </div>
+            }
         </div>
     }
 </div>
