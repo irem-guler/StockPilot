@@ -23,6 +23,10 @@ namespace StockPilot.DataAccessLayer.Context
         {
             base.OnModelCreating(modelBuilder);
 
+            modelBuilder.Entity<Product>()
+    .Property(x => x.UnitPrice)
+    .HasPrecision(18, 2);
+
             modelBuilder.Entity<WarehouseStock>()
                 .HasIndex(x => new { x.ProductId, x.WarehouseId })
                 .IsUnique();
