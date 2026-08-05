@@ -1,3 +1,7 @@
+using StockPilot.BusinessLayer.Abstract;
+using StockPilot.BusinessLayer.Concrete;
+using StockPilot.DataAccessLayer.Abstract;
+using StockPilot.DataAccessLayer.Concrete;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using StockPilot.DataAccessLayer.Context;
@@ -30,7 +34,17 @@ builder.Services.ConfigureApplicationCookie(options =>
     options.AccessDeniedPath = "/Account/AccessDenied";
 });
 
+builder.Services.AddScoped<IProductDal, ProductRepository>();
+builder.Services.AddScoped<IWarehouseDal, WarehouseRepository>();
+builder.Services.AddScoped<IWarehouseStockDal, WarehouseStockRepository>();
+builder.Services.AddScoped<IStockMovementDal, StockMovementRepository>();
+
+builder.Services.AddScoped<IProductService, ProductManager>();
+builder.Services.AddScoped<IWarehouseService, WarehouseManager>();
+
 var app = builder.Build();
+
+
 
 if (!app.Environment.IsDevelopment())
 {
