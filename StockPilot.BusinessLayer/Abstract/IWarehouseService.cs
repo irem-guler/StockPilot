@@ -11,5 +11,6 @@ namespace StockPilot.BusinessLayer.Abstract
         Task AddAsync(Warehouse warehouse);
 
         Task UpdateAsync(Warehouse warehouse);
+        Task<bool> DeactivateAsync(int id);
     }
 }

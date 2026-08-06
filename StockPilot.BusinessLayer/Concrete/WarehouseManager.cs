@@ -34,5 +34,22 @@ namespace StockPilot.BusinessLayer.Concrete
             _warehouseDal.Update(warehouse);
             await _warehouseDal.SaveChangesAsync();
         }
+
+        public async Task<bool> DeactivateAsync(int id)
+        {
+            var warehouse = await _warehouseDal.GetByIdAsync(id);
+
+            if (warehouse == null)
+            {
+                return false;
+            }
+
+            warehouse.IsActive = false;
+
+            _warehouseDal.Update(warehouse);
+            await _warehouseDal.SaveChangesAsync();
+
+            return true;
+        }
     }
 }

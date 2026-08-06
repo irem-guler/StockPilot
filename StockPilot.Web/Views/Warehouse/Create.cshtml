@@ -1,0 +1,116 @@
+﻿@model StockPilot.EntityLayer.Entities.Warehouse
+
+@{
+    ViewData["Title"] = "Add Warehouse";
+}
+
+<div class="container-fluid">
+
+    <div class="mb-4">
+        <h2 class="mb-1">Add Warehouse</h2>
+
+        <p class="text-muted mb-0">
+            Create a new warehouse record.
+        </p>
+    </div>
+
+    @if (ViewBag.ErrorMessage != null)
+    {
+        <div class="alert alert-danger">
+            @ViewBag.ErrorMessage
+        </div>
+    }
+
+    <div class="card shadow-sm">
+        <div class="card-header">
+            <strong>Warehouse Information</strong>
+        </div>
+
+        <div class="card-body">
+
+            <form asp-controller="Warehouse"
+                  asp-action="Create"
+                  method="post">
+
+                @Html.AntiForgeryToken()
+
+                <div asp-validation-summary="ModelOnly"
+                     class="text-danger mb-3">
+                </div>
+
+                <input asp-for="IsActive" type="hidden" />
+
+                <div class="mb-3">
+                    <label asp-for="Name"
+                           class="form-label">
+                        Warehouse Name
+                    </label>
+
+                    <input asp-for="Name"
+                           class="form-control"
+                           placeholder="Enter warehouse name" />
+
+                    <span asp-validation-for="Name"
+                          class="text-danger">
+                    </span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Location"
+                           class="form-label">
+                        Location
+                    </label>
+
+                    <input asp-for="Location"
+                           class="form-control"
+                           placeholder="Enter warehouse location" />
+
+                    <span asp-validation-for="Location"
+                          class="text-danger">
+                    </span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Description"
+                           class="form-label">
+                        Description
+                    </label>
+
+                    <textarea asp-for="Description"
+                              class="form-control"
+                              rows="4"
+                              placeholder="Enter warehouse description"></textarea>
+
+                    <span asp-validation-for="Description"
+                          class="text-danger">
+                    </span>
+                </div>
+
+                <div class="d-flex justify-content-end gap-2">
+
+                    <a asp-controller="Warehouse"
+                       asp-action="Index"
+                       class="btn btn-outline-secondary">
+                        <i class="bi bi-arrow-left me-1"></i>
+                        Cancel
+                    </a>
+
+                    <button type="submit"
+                            class="btn btn-primary">
+                        <i class="bi bi-check-circle me-1"></i>
+                        Save Warehouse
+                    </button>
+
+                </div>
+            </form>
+
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync(
+            "_ValidationScriptsPartial");
+    }
+}
