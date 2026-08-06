@@ -12,5 +12,9 @@ namespace StockPilot.DataAccessLayer.Abstract
         Task<WarehouseStock?> GetByProductAndWarehouseAsync(
             int productId,
             int warehouseId);
+
+        Task<List<WarehouseStock>> GetInventoryAsync(
+            string? searchTerm,
+            int? warehouseId);
     }
 }

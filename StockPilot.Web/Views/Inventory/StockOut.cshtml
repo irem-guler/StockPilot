@@ -1,0 +1,170 @@
+﻿@model StockPilot.Web.Models.StockOutViewModel
+
+@{
+    ViewData["Title"] = "Stock Out";
+}
+
+@section Styles {
+    <link rel="stylesheet"
+          href="~/css/stock-in.css"
+          asp-append-version="true" />
+}
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-7">
+            <div class="card shadow-sm">
+                <div class="card-header">
+                    <h3 class="mb-0">
+                        <i class="bi bi-box-arrow-up me-2"></i>
+                        Stock Out
+                    </h3>
+                </div>
+
+                <div class="card-body">
+                    <form asp-controller="Inventory"
+                          asp-action="StockOut"
+                          method="post">
+
+                        <div asp-validation-summary="ModelOnly"
+                             class="text-danger mb-3">
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">
+                                Product
+                            </label>
+
+                            <input type="hidden" asp-for="ProductId" id="ProductId" />
+
+                            <div class="dropdown w-100">
+                                <button class="btn btn-outline-secondary dropdown-toggle w-100 text-start stock-in-dropdown-button"
+                                        type="button"
+                                        data-bs-toggle="dropdown"
+                                        aria-expanded="false">
+                                    <span id="productDropdownText">Select a product</span>
+                                </button>
+
+                                <ul class="dropdown-menu w-100 stock-in-dropdown-menu">
+                                    @foreach (var product in Model.Products)
+                                    {
+                                        <li>
+                                            <button type="button"
+                                                    class="dropdown-item product-option"
+                                                    data-value="@product.Value">
+                                                @product.Text
+                                            </button>
+                                        </li>
+                                    }
+                                </ul>
+                            </div>
+
+                            <span asp-validation-for="ProductId"
+                                  class="text-danger">
+                            </span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">
+                                Warehouse
+                            </label>
+
+                            <input type="hidden" asp-for="WarehouseId" id="WarehouseId" />
+
+                            <div class="dropdown w-100">
+                                <button class="btn btn-outline-secondary dropdown-toggle w-100 text-start stock-in-dropdown-button"
+                                        type="button"
+                                        data-bs-toggle="dropdown"
+                                        aria-expanded="false">
+                                    <span id="warehouseDropdownText">Select a warehouse</span>
+                                </button>
+
+                                <ul class="dropdown-menu w-100 stock-in-dropdown-menu">
+                                    @foreach (var warehouse in Model.Warehouses)
+                                    {
+                                        <li>
+                                            <button type="button"
+                                                    class="dropdown-item warehouse-option"
+                                                    data-value="@warehouse.Value">
+                                                @warehouse.Text
+                                            </button>
+                                        </li>
+                                    }
+                                </ul>
+                            </div>
+
+                            <span asp-validation-for="WarehouseId"
+                                  class="text-danger">
+                            </span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Quantity" class="form-label">
+                                Quantity
+                            </label>
+
+                            <input asp-for="Quantity"
+                                   class="form-control"
+                                   type="number"
+                                   min="1" />
+
+                            <span asp-validation-for="Quantity"
+                                  class="text-danger">
+                            </span>
+                        </div>
+
+                        <div class="mb-4">
+                            <label asp-for="Note" class="form-label">
+                                Note
+                            </label>
+
+                            <textarea asp-for="Note"
+                                      class="form-control"
+                                      rows="3"
+                                      placeholder="Optional note for this stock exit"></textarea>
+
+                            <span asp-validation-for="Note"
+                                  class="text-danger">
+                            </span>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-check-lg me-1"></i>
+                            Save Stock Out
+                        </button>
+
+                        <a asp-controller="Inventory"
+                           asp-action="Index"
+                           class="btn btn-secondary">
+                            Back to Inventory
+                        </a>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script>
+        document.querySelectorAll(".product-option").forEach(function (option) {
+            option.addEventListener("click", function () {
+                document.getElementById("ProductId").value = this.dataset.value;
+                document.getElementById("productDropdownText").textContent =
+                    this.textContent.trim();
+            });
+        });
+
+        document.querySelectorAll(".warehouse-option").forEach(function (option) {
+            option.addEventListener("click", function () {
+                document.getElementById("WarehouseId").value = this.dataset.value;
+                document.getElementById("warehouseDropdownText").textContent =
+                    this.textContent.trim();
+            });
+        });
+    </script>
+}

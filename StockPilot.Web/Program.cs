@@ -41,6 +41,7 @@ builder.Services.AddScoped<IStockMovementDal, StockMovementRepository>();
 
 builder.Services.AddScoped<IProductService, ProductManager>();
 builder.Services.AddScoped<IWarehouseService, WarehouseManager>();
+builder.Services.AddScoped<IInventoryService, InventoryManager>();
 
 var app = builder.Build();
 
