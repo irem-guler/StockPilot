@@ -30,7 +30,9 @@ namespace StockPilot.DataAccessLayer.Context
             modelBuilder.Entity<WarehouseStock>()
                 .HasIndex(x => new { x.ProductId, x.WarehouseId })
                 .IsUnique();
-
+            modelBuilder.Entity<Product>()
+    .HasIndex(x => x.SKU)
+    .IsUnique();
             modelBuilder.Entity<StockMovement>()
                 .HasOne(x => x.SourceWarehouse)
                 .WithMany(x => x.OutgoingStockMovements)

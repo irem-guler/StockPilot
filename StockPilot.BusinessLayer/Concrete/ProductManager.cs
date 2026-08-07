@@ -50,5 +50,23 @@ namespace StockPilot.BusinessLayer.Concrete
 
             return true;
         }
+        public async Task<bool> IsSkuInUseAsync(
+    string sku,
+    int? excludeProductId = null)
+        {
+            if (string.IsNullOrWhiteSpace(sku))
+            {
+                return false;
+            }
+
+            var normalizedSku = sku.Trim();
+
+            var allProducts = await _productDal.GetAllAsync();
+
+            return allProducts.Any(product =>
+                product.SKU != null &&
+                product.SKU.Trim().ToUpper() == normalizedSku.ToUpper() &&
+                product.ProductId != excludeProductId);
+        }
     }
 }

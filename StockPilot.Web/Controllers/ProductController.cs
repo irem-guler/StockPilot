@@ -67,7 +67,19 @@ namespace StockPilot.Web.Controllers
                 return View(product);
             }
 
+            if (await _productService.IsSkuInUseAsync(product.SKU))
+            {
+                ModelState.AddModelError(
+                    nameof(product.SKU),
+                    "This SKU is already in use by another product.");
+
+                return View(product);
+            }
+
             await _productService.AddAsync(product);
+
+            TempData["SuccessMessage"] =
+                "Product created successfully.";
 
             return RedirectToAction(nameof(Index));
         }
@@ -94,12 +106,24 @@ namespace StockPilot.Web.Controllers
             }
 
             var existingProduct =
-                await _productService.GetByIdAsync(product.ProductId);
+        await _productService.GetByIdAsync(product.ProductId);
 
             if (existingProduct == null)
             {
                 return NotFound();
             }
+
+            if (await _productService.IsSkuInUseAsync(
+                    product.SKU, product.ProductId))
+            {
+                ModelState.AddModelError(
+                    nameof(product.SKU),
+                    "This SKU is already in use by another product.");
+
+                return View(product);
+            }
+
+            existingProduct.Name = product.Name;
 
             existingProduct.Name = product.Name;
             existingProduct.SKU = product.SKU;

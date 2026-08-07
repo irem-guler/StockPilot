@@ -17,5 +17,6 @@ namespace StockPilot.BusinessLayer.Abstract
 
         Task UpdateAsync(Product product);
         Task<bool> DeactivateAsync(int id);
+        Task<bool> IsSkuInUseAsync(string sku, int? excludeProductId = null);
     }
 }
