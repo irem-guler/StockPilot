@@ -1,7 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using StockPilot.BusinessLayer.Abstract;
-using StockPilot.Web.Models;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using StockPilot.BusinessLayer.Abstract;
+using StockPilot.EntityLayer.Enums;
+using StockPilot.Web.Models;
 
 namespace StockPilot.Web.Controllers
 {
@@ -230,6 +231,77 @@ namespace StockPilot.Web.Controllers
 
             return RedirectToAction(nameof(Index));
         }
+
+        public async Task<IActionResult> MovementHistory(
+    int? productId,
+    int? warehouseId,
+    StockMovementType? movementType,
+    int page = 1)
+        {
+            const int pageSize = 15;
+
+            var movements = await _inventoryService.GetMovementsAsync(
+                productId,
+                warehouseId,
+                movementType);
+
+            var totalMovementCount = movements.Count;
+
+            var totalPageCount = (int)Math.Ceiling(
+                totalMovementCount / (double)pageSize);
+
+            if (page < 1)
+            {
+                page = 1;
+            }
+
+            if (totalPageCount > 0 && page > totalPageCount)
+            {
+                page = totalPageCount;
+            }
+
+            var pagedMovements = movements
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToList();
+
+            var products = await _productService.GetAllAsync();
+
+            var warehouses = await _warehouseService.GetAllAsync();
+
+            var viewModel = new MovementHistoryViewModel
+            {
+                Movements = pagedMovements,
+                ProductId = productId,
+                WarehouseId = warehouseId,
+                MovementType = movementType,
+                CurrentPage = page,
+                TotalPageCount = totalPageCount,
+                TotalMovementCount = totalMovementCount,
+                Products = products
+                    .OrderBy(product => product.Name)
+                    .Select(product => new SelectListItem
+                    {
+                        Value = product.ProductId.ToString(),
+                        Text = $"{product.Name} ({product.SKU})",
+                        Selected = productId.HasValue &&
+                                   product.ProductId == productId.Value
+                    })
+                    .ToList(),
+                Warehouses = warehouses
+                    .OrderBy(warehouse => warehouse.Name)
+                    .Select(warehouse => new SelectListItem
+                    {
+                        Value = warehouse.WarehouseId.ToString(),
+                        Text = warehouse.Name,
+                        Selected = warehouseId.HasValue &&
+                                   warehouse.WarehouseId == warehouseId.Value
+                    })
+                    .ToList()
+            };
+
+            return View(viewModel);
+        }
         private async Task PopulateTransferSelectListsAsync(
     TransferViewModel viewModel)
         {
@@ -267,5 +339,6 @@ namespace StockPilot.Web.Controllers
                 })
                 .ToList();
         }
+
     }
 }

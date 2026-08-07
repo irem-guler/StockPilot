@@ -1,0 +1,212 @@
+﻿@model StockPilot.Web.Models.MovementHistoryViewModel
+@using StockPilot.EntityLayer.Enums
+
+@{
+    ViewData["Title"] = "Movement History";
+}
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h3 class="mb-1">Movement History</h3>
+
+            <p class="text-muted mb-0">
+                View all stock in, stock out and transfer records.
+            </p>
+        </div>
+
+        <a asp-controller="Inventory"
+           asp-action="Index"
+           class="btn btn-secondary">
+            <i class="bi bi-arrow-left me-1"></i>
+            Back to Inventory
+        </a>
+    </div>
+
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <form asp-controller="Inventory"
+                  asp-action="MovementHistory"
+                  method="get"
+                  class="row g-3 align-items-end">
+
+                <div class="col-md-4">
+                    <label class="form-label">Product</label>
+
+                    <select name="productId"
+                            asp-items="Model.Products"
+                            class="form-select">
+                        <option value="">All products</option>
+                    </select>
+                </div>
+
+                <div class="col-md-3">
+                    <label class="form-label">Warehouse</label>
+
+                    <select name="warehouseId"
+                            asp-items="Model.Warehouses"
+                            class="form-select">
+                        <option value="">All warehouses</option>
+                    </select>
+                </div>
+
+                <div class="col-md-3">
+                    <label class="form-label">Movement Type</label>
+
+                    <select name="movementType" class="form-select">
+                        <option value="">All types</option>
+                        <option value="@((int)StockMovementType.StockIn)"
+                                selected="@(Model.MovementType == StockMovementType.StockIn)">
+                            Stock In
+                        </option>
+                        <option value="@((int)StockMovementType.StockOut)"
+                                selected="@(Model.MovementType == StockMovementType.StockOut)">
+                            Stock Out
+                        </option>
+                        <option value="@((int)StockMovementType.Transfer)"
+                                selected="@(Model.MovementType == StockMovementType.Transfer)">
+                            Transfer
+                        </option>
+                    </select>
+                </div>
+
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="bi bi-funnel me-1"></i>
+                        Filter
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    @if (!Model.Movements.Any())
+    {
+        <div class="card shadow-sm">
+            <div class="card-body text-center text-muted py-5">
+                <i class="bi bi-clock-history d-block mb-3" style="font-size: 48px;"></i>
+                No movement records found.
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="card shadow-sm">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span class="fw-semibold">Movement Records</span>
+
+                <span class="badge bg-primary">
+                    @Model.TotalMovementCount Records
+                </span>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table table-hover mb-0 align-middle">
+                    <thead>
+                        <tr>
+                            <th>Date (UTC)</th>
+                            <th>Product</th>
+                            <th>Type</th>
+                            <th>Source</th>
+                            <th>Destination</th>
+                            <th class="text-end">Quantity</th>
+                            <th>Note</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        @foreach (var movement in Model.Movements)
+                        {
+                            <tr>
+                                <td>@movement.MovementDateUtc.ToString("yyyy-MM-dd HH:mm")</td>
+
+                                <td>
+                                    @if (movement.Product != null)
+                                    {
+                                        <span>@movement.Product.Name</span>
+                                        <span class="text-muted small">(@movement.Product.SKU)</span>
+                                    }
+                                </td>
+
+                                <td>
+                                    @switch (movement.MovementType)
+                                    {
+                                        case StockMovementType.StockIn:
+                                            <span class="badge bg-success">Stock In</span>
+                                            break;
+                                        case StockMovementType.StockOut:
+                                            <span class="badge bg-danger">Stock Out</span>
+                                            break;
+                                        case StockMovementType.Transfer:
+                                            <span class="badge bg-primary">Transfer</span>
+                                            break;
+                                    }
+                                </td>
+
+                                <td>@(movement.SourceWarehouse?.Name ?? "-")</td>
+
+                                <td>@(movement.DestinationWarehouse?.Name ?? "-")</td>
+
+                                <td class="text-end fw-semibold">@movement.Quantity</td>
+
+                                <td class="text-muted">@(string.IsNullOrWhiteSpace(movement.Description) ? "-" : movement.Description)</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        @if (Model.TotalPageCount > 1)
+        {
+            <div class="card-footer bg-white py-3">
+                <nav aria-label="Movement history pages">
+                    <ul class="pagination justify-content-center mb-0">
+                        <li class="page-item @(Model.CurrentPage == 1 ? "disabled" : "")">
+                            <a class="page-link"
+                               asp-controller="Inventory"
+                               asp-action="MovementHistory"
+                               asp-route-page="@(Model.CurrentPage - 1)"
+                               asp-route-productId="@Model.ProductId"
+                               asp-route-warehouseId="@Model.WarehouseId"
+                               asp-route-movementType="@((int?)Model.MovementType)">
+                                <i class="bi bi-chevron-left me-1"></i>
+                                Previous
+                            </a>
+                        </li>
+
+                        @for (int pageNumber = 1;
+                                        pageNumber <= Model.TotalPageCount;
+                                        pageNumber++)
+                        {
+                            <li class="page-item @(Model.CurrentPage == pageNumber ? "active" : "")">
+                                <a class="page-link"
+                                   asp-controller="Inventory"
+                                   asp-action="MovementHistory"
+                                   asp-route-page="@pageNumber"
+                                   asp-route-productId="@Model.ProductId"
+                                   asp-route-warehouseId="@Model.WarehouseId"
+                                   asp-route-movementType="@((int?)Model.MovementType)">
+                                    @pageNumber
+                                </a>
+                            </li>
+                        }
+
+                        <li class="page-item @(Model.CurrentPage == Model.TotalPageCount ? "disabled" : "")">
+                            <a class="page-link"
+                               asp-controller="Inventory"
+                               asp-action="MovementHistory"
+                               asp-route-page="@(Model.CurrentPage + 1)"
+                               asp-route-productId="@Model.ProductId"
+                               asp-route-warehouseId="@Model.WarehouseId"
+                               asp-route-movementType="@((int?)Model.MovementType)">
+                                Next
+                                <i class="bi bi-chevron-right ms-1"></i>
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        }
+    }
+</div>

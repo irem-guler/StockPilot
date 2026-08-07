@@ -1,4 +1,5 @@
 ﻿using StockPilot.EntityLayer.Entities;
+using StockPilot.EntityLayer.Enums;
 
 namespace StockPilot.BusinessLayer.Abstract
 {
@@ -30,6 +31,10 @@ namespace StockPilot.BusinessLayer.Abstract
     int destinationWarehouseId,
     int quantity,
     string? note);
+        Task<List<StockMovement>> GetMovementsAsync(
+    int? productId,
+    int? warehouseId,
+    StockMovementType? movementType);
     }
 
 }

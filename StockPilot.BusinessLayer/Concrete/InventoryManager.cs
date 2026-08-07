@@ -272,5 +272,15 @@ namespace StockPilot.BusinessLayer.Concrete
                 return (false, "An error occurred during the transfer. The operation was cancelled.");
             }
         }
+        public async Task<List<StockMovement>> GetMovementsAsync(
+    int? productId,
+    int? warehouseId,
+    StockMovementType? movementType)
+        {
+            return await _stockMovementDal.GetMovementsAsync(
+                productId,
+                warehouseId,
+                movementType);
+        }
     }
 }

@@ -50,7 +50,7 @@
         <div class="d-flex gap-2">
             <a asp-controller="Inventory"
                asp-action="StockIn"
-               class="btn btn-primary">
+               class="btn btn-outline-primary">
                 <i class="bi bi-box-arrow-in-down me-1"></i>
                 Stock In
             </a>
@@ -67,6 +67,13 @@
                class="btn btn-outline-primary">
                 <i class="bi bi-arrow-left-right me-1"></i>
                 Transfer
+            </a>
+
+            <a asp-controller="Inventory"
+               asp-action="MovementHistory"
+               class="btn btn-outline-primary">
+                <i class="bi bi-clock-history me-1"></i>
+                History
             </a>
         </div>
     </div>

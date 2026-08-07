@@ -7,6 +7,8 @@ using Microsoft.EntityFrameworkCore.Storage;
 using StockPilot.DataAccessLayer.Abstract;
 using StockPilot.DataAccessLayer.Context;
 using StockPilot.EntityLayer.Entities;
+using Microsoft.EntityFrameworkCore;
+using StockPilot.EntityLayer.Enums;
 
 namespace StockPilot.DataAccessLayer.Concrete
 {
@@ -44,6 +46,42 @@ namespace StockPilot.DataAccessLayer.Concrete
                 await _currentTransaction.DisposeAsync();
                 _currentTransaction = null;
             }
+        }
+
+        public async Task<List<StockMovement>> GetMovementsAsync(
+    int? productId,
+    int? warehouseId,
+    StockMovementType? movementType)
+        {
+            var query = _dbSet
+                .Include(movement => movement.Product)
+                .Include(movement => movement.SourceWarehouse)
+                .Include(movement => movement.DestinationWarehouse)
+                .AsNoTracking()
+                .AsQueryable();
+
+            if (productId.HasValue)
+            {
+                query = query.Where(movement =>
+                    movement.ProductId == productId.Value);
+            }
+
+            if (warehouseId.HasValue)
+            {
+                query = query.Where(movement =>
+                    movement.SourceWarehouseId == warehouseId.Value ||
+                    movement.DestinationWarehouseId == warehouseId.Value);
+            }
+
+            if (movementType.HasValue)
+            {
+                query = query.Where(movement =>
+                    movement.MovementType == movementType.Value);
+            }
+
+            return await query
+                .OrderByDescending(movement => movement.MovementDateUtc)
+                .ToListAsync();
         }
     }
 }

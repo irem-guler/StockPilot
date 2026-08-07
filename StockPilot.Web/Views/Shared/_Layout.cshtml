@@ -69,9 +69,9 @@
                     <span>Inventory</span>
                 </a>
 
-                <a href="#"
-                   class="menu-item disabled"
-                   title="This module will be available soon">
+                <a asp-controller="Inventory"
+                   asp-action="MovementHistory"
+                   class="menu-item @(controller == "Inventory" && action == "MovementHistory" ? "active" : "")">
                     <i class="bi bi-clock-history"></i>
                     <span>Stock Movements</span>
                 </a>
