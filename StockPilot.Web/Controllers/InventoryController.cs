@@ -186,5 +186,86 @@ namespace StockPilot.Web.Controllers
 
             return RedirectToAction(nameof(Index));
         }
+        [HttpGet]
+        public async Task<IActionResult> Transfer()
+        {
+            var viewModel = new TransferViewModel();
+
+            await PopulateTransferSelectListsAsync(viewModel);
+
+            return View(viewModel);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Transfer(TransferViewModel viewModel)
+        {
+            if (!ModelState.IsValid)
+            {
+                await PopulateTransferSelectListsAsync(viewModel);
+
+                return View(viewModel);
+            }
+
+            var result = await _inventoryService.TransferAsync(
+                viewModel.ProductId,
+                viewModel.SourceWarehouseId,
+                viewModel.DestinationWarehouseId,
+                viewModel.Quantity,
+                viewModel.Note);
+
+            if (!result.Success)
+            {
+                ModelState.AddModelError(
+                    string.Empty,
+                    result.ErrorMessage ?? "Transfer operation failed.");
+
+                await PopulateTransferSelectListsAsync(viewModel);
+
+                return View(viewModel);
+            }
+
+            TempData["SuccessMessage"] =
+                "Transfer operation completed successfully.";
+
+            return RedirectToAction(nameof(Index));
+        }
+        private async Task PopulateTransferSelectListsAsync(
+    TransferViewModel viewModel)
+        {
+            var products = await _productService.GetAllAsync();
+
+            viewModel.Products = products
+                .Where(product => product.IsActive)
+                .OrderBy(product => product.Name)
+                .Select(product => new SelectListItem
+                {
+                    Value = product.ProductId.ToString(),
+                    Text = $"{product.Name} ({product.SKU})"
+                })
+                .ToList();
+
+            var warehouses = await _warehouseService.GetAllAsync();
+
+            var activeWarehouseItems = warehouses
+                .Where(warehouse => warehouse.IsActive)
+                .OrderBy(warehouse => warehouse.Name)
+                .Select(warehouse => new SelectListItem
+                {
+                    Value = warehouse.WarehouseId.ToString(),
+                    Text = warehouse.Name
+                })
+                .ToList();
+
+            viewModel.SourceWarehouses = activeWarehouseItems;
+
+            viewModel.DestinationWarehouses = activeWarehouseItems
+                .Select(item => new SelectListItem
+                {
+                    Value = item.Value,
+                    Text = item.Text
+                })
+                .ToList();
+        }
     }
 }

@@ -23,6 +23,13 @@ namespace StockPilot.BusinessLayer.Abstract
     int warehouseId,
     int quantity,
     string? note);
+
+        Task<(bool Success, string? ErrorMessage)> TransferAsync(
+    int productId,
+    int sourceWarehouseId,
+    int destinationWarehouseId,
+    int quantity,
+    string? note);
     }
 
 }

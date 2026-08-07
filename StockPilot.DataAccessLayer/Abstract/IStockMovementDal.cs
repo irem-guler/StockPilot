@@ -9,5 +9,10 @@ namespace StockPilot.DataAccessLayer.Abstract
 {
     public interface IStockMovementDal : IGenericDal<StockMovement>
     {
+        Task BeginTransactionAsync();
+
+        Task CommitTransactionAsync();
+
+        Task RollbackTransactionAsync();
     }
 }
