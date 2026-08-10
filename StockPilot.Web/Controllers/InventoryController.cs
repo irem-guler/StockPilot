@@ -1,16 +1,21 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using StockPilot.BusinessLayer.Abstract;
 using StockPilot.EntityLayer.Enums;
 using StockPilot.Web.Models;
+using StockPilot.EntityLayer.Entities;
 
 namespace StockPilot.Web.Controllers
 {
+    [Authorize]
     public class InventoryController : Controller
     {
         private readonly IInventoryService _inventoryService;
         private readonly IWarehouseService _warehouseService;
         private readonly IProductService _productService;
+        private readonly UserManager<AppUser> _userManager;
 
         public InventoryController(
             IInventoryService inventoryService,
@@ -94,11 +99,14 @@ namespace StockPilot.Web.Controllers
                 return View(viewModel);
             }
 
+            var userId = _userManager.GetUserId(User);
+
             var result = await _inventoryService.StockInAsync(
                 viewModel.ProductId,
                 viewModel.WarehouseId,
                 viewModel.Quantity,
-                viewModel.Note);
+                viewModel.Note,
+                userId);
 
             if (!result.Success)
             {
@@ -165,11 +173,14 @@ namespace StockPilot.Web.Controllers
                 return View(viewModel);
             }
 
+            var userId = _userManager.GetUserId(User);
+
             var result = await _inventoryService.StockOutAsync(
                 viewModel.ProductId,
                 viewModel.WarehouseId,
                 viewModel.Quantity,
-                viewModel.Note);
+                viewModel.Note,
+                userId);
 
             if (!result.Success)
             {
@@ -208,12 +219,15 @@ namespace StockPilot.Web.Controllers
                 return View(viewModel);
             }
 
+            var userId = _userManager.GetUserId(User);
+
             var result = await _inventoryService.TransferAsync(
                 viewModel.ProductId,
                 viewModel.SourceWarehouseId,
                 viewModel.DestinationWarehouseId,
                 viewModel.Quantity,
-                viewModel.Note);
+                viewModel.Note,
+                userId);
 
             if (!result.Success)
             {

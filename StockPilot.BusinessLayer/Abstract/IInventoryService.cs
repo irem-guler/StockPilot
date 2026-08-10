@@ -14,27 +14,30 @@ namespace StockPilot.BusinessLayer.Abstract
             int warehouseId);
 
         Task<(bool Success, string? ErrorMessage)> StockInAsync(
-    int productId,
-    int warehouseId,
-    int quantity,
-    string? note);
+            int productId,
+            int warehouseId,
+            int quantity,
+            string? note,
+            string? performedByUserId);
 
         Task<(bool Success, string? ErrorMessage)> StockOutAsync(
-    int productId,
-    int warehouseId,
-    int quantity,
-    string? note);
+            int productId,
+            int warehouseId,
+            int quantity,
+            string? note,
+            string? performedByUserId);
 
         Task<(bool Success, string? ErrorMessage)> TransferAsync(
-    int productId,
-    int sourceWarehouseId,
-    int destinationWarehouseId,
-    int quantity,
-    string? note);
-        Task<List<StockMovement>> GetMovementsAsync(
-    int? productId,
-    int? warehouseId,
-    StockMovementType? movementType);
-    }
+            int productId,
+            int sourceWarehouseId,
+            int destinationWarehouseId,
+            int quantity,
+            string? note,
+            string? performedByUserId);
 
+        Task<List<StockMovement>> GetMovementsAsync(
+            int? productId,
+            int? warehouseId,
+            StockMovementType? movementType);
+    }
 }

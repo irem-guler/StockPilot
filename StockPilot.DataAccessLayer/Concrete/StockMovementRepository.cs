@@ -57,6 +57,7 @@ namespace StockPilot.DataAccessLayer.Concrete
                 .Include(movement => movement.Product)
                 .Include(movement => movement.SourceWarehouse)
                 .Include(movement => movement.DestinationWarehouse)
+                .Include(movement => movement.PerformedByUser)
                 .AsNoTracking()
                 .AsQueryable();
 

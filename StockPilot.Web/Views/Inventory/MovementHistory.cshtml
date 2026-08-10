@@ -110,6 +110,7 @@
                             <th>Source</th>
                             <th>Destination</th>
                             <th class="text-end">Quantity</th>
+                            <th>User</th>
                             <th>Note</th>
                         </tr>
                     </thead>
@@ -148,6 +149,16 @@
                                 <td>@(movement.DestinationWarehouse?.Name ?? "-")</td>
 
                                 <td class="text-end fw-semibold">@movement.Quantity</td>
+                                <td>
+                                    @if (movement.PerformedByUser != null)
+                                    {
+                                        <span>@movement.PerformedByUser.FirstName @movement.PerformedByUser.LastName</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">-</span>
+                                    }
+                                </td>
 
                                 <td class="text-muted">@(string.IsNullOrWhiteSpace(movement.Description) ? "-" : movement.Description)</td>
                             </tr>

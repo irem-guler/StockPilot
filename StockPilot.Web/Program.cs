@@ -45,7 +45,12 @@ builder.Services.AddScoped<IInventoryService, InventoryManager>();
 
 var app = builder.Build();
 
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
 
+    await StockPilot.Web.Data.SeedData.InitializeAsync(services);
+}
 
 if (!app.Environment.IsDevelopment())
 {

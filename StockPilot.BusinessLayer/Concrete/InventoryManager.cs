@@ -23,6 +23,7 @@ namespace StockPilot.BusinessLayer.Concrete
             _warehouseDal = warehouseDal;
             _stockMovementDal = stockMovementDal;
         }
+
         public async Task<List<WarehouseStock>> GetInventoryAsync(
             string? searchTerm,
             int? warehouseId)
@@ -32,21 +33,22 @@ namespace StockPilot.BusinessLayer.Concrete
                 warehouseId);
         }
 
-        public async Task<WarehouseStock?>
-            GetByProductAndWarehouseAsync(
-                int productId,
-                int warehouseId)
+        public async Task<WarehouseStock?> GetByProductAndWarehouseAsync(
+            int productId,
+            int warehouseId)
         {
             return await _warehouseStockDal
                 .GetByProductAndWarehouseAsync(
                     productId,
                     warehouseId);
         }
+
         public async Task<(bool Success, string? ErrorMessage)> StockInAsync(
-    int productId,
-    int warehouseId,
-    int quantity,
-    string? note)
+            int productId,
+            int warehouseId,
+            int quantity,
+            string? note,
+            string? performedByUserId)
         {
             if (quantity <= 0)
             {
@@ -96,7 +98,7 @@ namespace StockPilot.BusinessLayer.Concrete
                 MovementType = StockMovementType.StockIn,
                 Quantity = quantity,
                 Description = string.IsNullOrWhiteSpace(note) ? null : note.Trim(),
-                PerformedByUserId = null
+                PerformedByUserId = performedByUserId
             };
 
             await _stockMovementDal.AddAsync(stockMovement);
@@ -107,10 +109,11 @@ namespace StockPilot.BusinessLayer.Concrete
         }
 
         public async Task<(bool Success, string? ErrorMessage)> StockOutAsync(
-    int productId,
-    int warehouseId,
-    int quantity,
-    string? note)
+            int productId,
+            int warehouseId,
+            int quantity,
+            string? note,
+            string? performedByUserId)
         {
             if (quantity <= 0)
             {
@@ -156,7 +159,7 @@ namespace StockPilot.BusinessLayer.Concrete
                 MovementType = StockMovementType.StockOut,
                 Quantity = quantity,
                 Description = string.IsNullOrWhiteSpace(note) ? null : note.Trim(),
-                PerformedByUserId = null
+                PerformedByUserId = performedByUserId
             };
 
             await _stockMovementDal.AddAsync(stockMovement);
@@ -165,12 +168,14 @@ namespace StockPilot.BusinessLayer.Concrete
 
             return (true, null);
         }
+
         public async Task<(bool Success, string? ErrorMessage)> TransferAsync(
-    int productId,
-    int sourceWarehouseId,
-    int destinationWarehouseId,
-    int quantity,
-    string? note)
+            int productId,
+            int sourceWarehouseId,
+            int destinationWarehouseId,
+            int quantity,
+            string? note,
+            string? performedByUserId)
         {
             if (quantity <= 0)
             {
@@ -254,7 +259,7 @@ namespace StockPilot.BusinessLayer.Concrete
                     MovementType = StockMovementType.Transfer,
                     Quantity = quantity,
                     Description = string.IsNullOrWhiteSpace(note) ? null : note.Trim(),
-                    PerformedByUserId = null
+                    PerformedByUserId = performedByUserId
                 };
 
                 await _stockMovementDal.AddAsync(stockMovement);
@@ -272,10 +277,11 @@ namespace StockPilot.BusinessLayer.Concrete
                 return (false, "An error occurred during the transfer. The operation was cancelled.");
             }
         }
+
         public async Task<List<StockMovement>> GetMovementsAsync(
-    int? productId,
-    int? warehouseId,
-    StockMovementType? movementType)
+            int? productId,
+            int? warehouseId,
+            StockMovementType? movementType)
         {
             return await _stockMovementDal.GetMovementsAsync(
                 productId,

@@ -1,9 +1,11 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using StockPilot.BusinessLayer.Abstract;
 using StockPilot.EntityLayer.Entities;
+using Microsoft.AspNetCore.Authorization;
 
 namespace StockPilot.Web.Controllers
 {
+    [Authorize]
     public class ProductController : Controller
     {
         private readonly IProductService _productService;
@@ -47,7 +49,7 @@ namespace StockPilot.Web.Controllers
 
             return View(products);
         }
-
+        [Authorize(Roles = "Admin")]
         [HttpGet]
         public IActionResult Create()
         {
@@ -58,6 +60,7 @@ namespace StockPilot.Web.Controllers
 
             return View(product);
         }
+        [Authorize(Roles = "Admin")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(Product product)
@@ -83,6 +86,7 @@ namespace StockPilot.Web.Controllers
 
             return RedirectToAction(nameof(Index));
         }
+        [Authorize(Roles = "Admin")]
         [HttpGet]
         public async Task<IActionResult> Edit(int id)
         {
@@ -95,7 +99,7 @@ namespace StockPilot.Web.Controllers
 
             return View(product);
         }
-
+        [Authorize(Roles = "Admin")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(Product product)
@@ -139,7 +143,7 @@ namespace StockPilot.Web.Controllers
 
             return RedirectToAction(nameof(Index));
         }
-
+        [Authorize(Roles = "Admin")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Deactivate(int id)

@@ -1,9 +1,11 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using StockPilot.BusinessLayer.Abstract;
 using StockPilot.EntityLayer.Entities;
+using Microsoft.AspNetCore.Authorization;
 
 namespace StockPilot.Web.Controllers
 {
+    [Authorize]
     public class WarehouseController : Controller
     {
         private readonly IWarehouseService _warehouseService;
@@ -46,7 +48,7 @@ namespace StockPilot.Web.Controllers
 
             return View(pagedWarehouses);
         }
-
+        [Authorize(Roles = "Admin")]
         [HttpGet]
         public IActionResult Create()
         {
@@ -57,7 +59,7 @@ namespace StockPilot.Web.Controllers
 
             return View(warehouse);
         }
-
+        [Authorize(Roles = "Admin")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(Warehouse warehouse)
@@ -85,7 +87,7 @@ namespace StockPilot.Web.Controllers
 
             return RedirectToAction(nameof(Index));
         }
-
+        [Authorize(Roles = "Admin")]
         [HttpGet]
         public async Task<IActionResult> Edit(int id)
         {
@@ -98,7 +100,7 @@ namespace StockPilot.Web.Controllers
 
             return View(warehouse);
         }
-
+        [Authorize(Roles = "Admin")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(Warehouse warehouse)
@@ -129,7 +131,7 @@ namespace StockPilot.Web.Controllers
 
             return RedirectToAction(nameof(Index));
         }
-
+        [Authorize(Roles = "Admin")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Deactivate(int id)

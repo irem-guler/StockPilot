@@ -1,0 +1,62 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>@ViewData["Title"] - StockPilot</title>
+
+    <link rel="stylesheet"
+          href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+
+    <style>
+        body {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #f4f6f9;
+        }
+
+        .auth-wrapper {
+            width: 100%;
+            max-width: 560px;
+            padding: 1rem;
+        }
+
+        .auth-brand {
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+
+            .auth-brand i {
+                font-size: 42px;
+                color: #0d6efd;
+            }
+
+            .auth-brand h1 {
+                font-size: 1.5rem;
+                font-weight: 600;
+                margin-top: 0.5rem;
+            }
+    </style>
+</head>
+<body>
+    <div class="auth-wrapper">
+        <div class="auth-brand">
+            <i class="bi bi-box-seam"></i>
+            <h1>StockPilot</h1>
+        </div>
+
+        @RenderBody()
+    </div>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

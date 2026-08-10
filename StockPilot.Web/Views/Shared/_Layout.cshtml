@@ -82,6 +82,15 @@
                     <i class="bi bi-bar-chart-fill"></i>
                     <span>Reports</span>
                 </a>
+                @if (User.IsInRole("Admin"))
+                {
+                    <a asp-controller="Users"
+                       asp-action="Index"
+                       class="menu-item @(controller == "Users" ? "active" : "")">
+                        <i class="bi bi-people-fill"></i>
+                        <span>Users</span>
+                    </a>
+                }
             </nav>
 
             <div class="sidebar-footer">
@@ -112,21 +121,34 @@
                     </div>
                 </div>
 
-                <div class="user-area">
-                    <div class="user-avatar">
-                        <i class="bi bi-person-fill"></i>
-                    </div>
+                @if (User.Identity?.IsAuthenticated == true)
+                {
+                    <div class="user-area">
+                        <div class="user-avatar">
+                            <i class="bi bi-person-fill"></i>
+                        </div>
 
-                    <div class="user-information">
-                        <strong>
-                            @(User.Identity?.IsAuthenticated == true
-                                                        ? User.Identity.Name
-                                                        : "Guest User")
-                        </strong>
+                        <div class="user-information">
+                            <strong>@User.Identity.Name</strong>
 
-                        <span>Administrator</span>
+                            <span>
+                                @(User.IsInRole("Admin") ? "Administrator" : "User")
+                            </span>
+                        </div>
+
+                        <form asp-controller="Account"
+                              asp-action="Logout"
+                              method="post"
+                              class="ms-3 mb-0">
+
+                            <button type="submit"
+                                    class="btn btn-sm btn-outline-danger"
+                                    title="Logout">
+                                <i class="bi bi-box-arrow-right"></i>
+                            </button>
+                        </form>
                     </div>
-                </div>
+                }
             </header>
 
             <!-- Page content -->
