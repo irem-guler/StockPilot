@@ -2,6 +2,8 @@
 using StockPilot.BusinessLayer.Abstract;
 using StockPilot.EntityLayer.Entities;
 using Microsoft.AspNetCore.Authorization;
+using ClosedXML.Excel;
+using StockPilot.BusinessLayer.Models;
 
 namespace StockPilot.Web.Controllers
 {
@@ -159,6 +161,77 @@ namespace StockPilot.Web.Controllers
                 "Product deactivated successfully.";
 
             return RedirectToAction(nameof(Index));
+        }
+        [Authorize(Roles = "Admin")]
+        [HttpGet]
+        public IActionResult Import()
+        {
+            return View();
+        }
+
+        [Authorize(Roles = "Admin")]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Import(IFormFile? file)
+        {
+            if (file == null || file.Length == 0)
+            {
+                TempData["ErrorMessage"] = "Please select an Excel file to import.";
+                return View();
+            }
+
+            var extension = Path.GetExtension(file.FileName).ToLowerInvariant();
+
+            if (extension != ".xlsx")
+            {
+                TempData["ErrorMessage"] = "Only .xlsx files are supported.";
+                return View();
+            }
+
+            var rows = new List<ProductImportRow>();
+
+            try
+            {
+                using var stream = new MemoryStream();
+                await file.CopyToAsync(stream);
+                stream.Position = 0;
+
+                using var workbook = new XLWorkbook(stream);
+                var worksheet = workbook.Worksheets.First();
+
+                var dataRows = worksheet.RowsUsed().Skip(1);
+
+                foreach (var dataRow in dataRows)
+                {
+                    var importRow = new ProductImportRow
+                    {
+                        RowNumber = dataRow.RowNumber(),
+                        Name = dataRow.Cell(1).GetString().Trim(),
+                        SKU = dataRow.Cell(2).GetString().Trim(),
+                        Description = dataRow.Cell(3).GetString().Trim(),
+                        UnitPrice = dataRow.Cell(4).GetValue<decimal>(),
+                        ReorderLevel = dataRow.Cell(5).GetValue<int>()
+                    };
+
+                    rows.Add(importRow);
+                }
+            }
+            catch (Exception)
+            {
+                TempData["ErrorMessage"] =
+                    "The file could not be read. Please check the format and try again.";
+                return View();
+            }
+
+            if (rows.Count == 0)
+            {
+                TempData["ErrorMessage"] = "The file does not contain any data rows.";
+                return View();
+            }
+
+            var result = await _productService.ImportProductsAsync(rows);
+
+            return View("ImportResult", result);
         }
     }
 }

@@ -1,0 +1,68 @@
+﻿@{
+    ViewData["Title"] = "Import Products";
+}
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            @if (TempData["ErrorMessage"] != null)
+            {
+                <div class="alert alert-danger alert-dismissible fade show shadow-sm" role="alert">
+                    <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                    @TempData["ErrorMessage"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            }
+
+            <div class="card shadow-sm">
+                <div class="card-header">
+                    <h3 class="mb-0">
+                        <i class="bi bi-file-earmark-arrow-up me-2"></i>
+                        Import Products
+                    </h3>
+                </div>
+
+                <div class="card-body">
+                    <div class="alert alert-info">
+                        <p class="mb-2">
+                            <strong>Excel format:</strong> The first row must be a header.
+                            Columns must be in this order:
+                        </p>
+                        <ol class="mb-0">
+                            <li>Name</li>
+                            <li>SKU</li>
+                            <li>Description</li>
+                            <li>Unit Price</li>
+                            <li>Reorder Level</li>
+                        </ol>
+                    </div>
+
+                    <form asp-controller="Product"
+                          asp-action="Import"
+                          method="post"
+                          enctype="multipart/form-data">
+
+                        <div class="mb-3">
+                            <label class="form-label">Excel File (.xlsx)</label>
+                            <input type="file"
+                                   name="file"
+                                   accept=".xlsx"
+                                   class="form-control" />
+                        </div>
+
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-upload me-1"></i>
+                            Import
+                        </button>
+
+                        <a asp-controller="Product"
+                           asp-action="Index"
+                           class="btn btn-secondary">
+                            Back to Products
+                        </a>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
