@@ -106,7 +106,12 @@
                                             </div>
 
                                             <div>
-                                                <strong>@product.Name</strong>
+                                                <a asp-controller="Product"
+                                                   asp-action="Details"
+                                                   asp-route-id="@product.ProductId"
+                                                   class="fw-semibold text-decoration-none">
+                                                    @product.Name
+                                                </a>
 
                                                 @if (!string.IsNullOrWhiteSpace(product.Description))
                                                 {

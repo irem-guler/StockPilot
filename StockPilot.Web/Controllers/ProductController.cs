@@ -4,6 +4,7 @@ using StockPilot.EntityLayer.Entities;
 using Microsoft.AspNetCore.Authorization;
 using ClosedXML.Excel;
 using StockPilot.BusinessLayer.Models;
+using StockPilot.Web.Models;
 
 namespace StockPilot.Web.Controllers
 {
@@ -11,10 +12,14 @@ namespace StockPilot.Web.Controllers
     public class ProductController : Controller
     {
         private readonly IProductService _productService;
+        private readonly IInventoryService _inventoryService;
 
-        public ProductController(IProductService productService)
+        public ProductController(
+            IProductService productService,
+            IInventoryService inventoryService)
         {
             _productService = productService;
+            _inventoryService = inventoryService;
         }
 
         public async Task<IActionResult> Index(int page = 1)
@@ -51,6 +56,36 @@ namespace StockPilot.Web.Controllers
 
             return View(products);
         }
+
+        public async Task<IActionResult> Details(int id)
+        {
+            var product = await _productService.GetByIdAsync(id);
+
+            if (product == null)
+            {
+                return NotFound();
+            }
+
+            var inventory = await _inventoryService.GetInventoryAsync(null, null);
+
+            var stockByWarehouse = inventory
+                .Where(stock => stock.ProductId == id)
+                .OrderByDescending(stock => stock.Quantity)
+                .ToList();
+
+            var movements = await _inventoryService.GetMovementsAsync(id, null, null);
+
+            var viewModel = new ProductDetailViewModel
+            {
+                Product = product,
+                StockByWarehouse = stockByWarehouse,
+                RecentMovements = movements.Take(10).ToList(),
+                TotalQuantity = stockByWarehouse.Sum(stock => stock.Quantity)
+            };
+
+            return View(viewModel);
+        }
+
         [Authorize(Roles = "Admin")]
         [HttpGet]
         public IActionResult Create()
