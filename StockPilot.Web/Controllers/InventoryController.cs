@@ -18,13 +18,15 @@ namespace StockPilot.Web.Controllers
         private readonly UserManager<AppUser> _userManager;
 
         public InventoryController(
-            IInventoryService inventoryService,
-            IWarehouseService warehouseService,
-            IProductService productService)
+    IInventoryService inventoryService,
+    IWarehouseService warehouseService,
+    IProductService productService,
+    UserManager<AppUser> userManager)
         {
             _inventoryService = inventoryService;
             _warehouseService = warehouseService;
             _productService = productService;
+            _userManager = userManager;
         }
 
         public async Task<IActionResult> Index(

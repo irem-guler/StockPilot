@@ -15,5 +15,18 @@ namespace StockPilot.Web.Models
         public List<WarehouseStock> CriticalStocks { get; set; } = new();
 
         public List<StockMovement> RecentMovements { get; set; } = new();
+        public int StockInCount { get; set; }
+
+        public int StockOutCount { get; set; }
+
+        public int TransferCount { get; set; }
+
+        public List<string> WarehouseNames { get; set; } = new();
+
+        public List<int> WarehouseQuantities { get; set; } = new();
+
+        public List<string> MovementDays { get; set; } = new();
+
+        public List<int> MovementDayCounts { get; set; } = new();
     }
 }

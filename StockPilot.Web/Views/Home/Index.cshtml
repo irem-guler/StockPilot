@@ -71,6 +71,50 @@
         </div>
     </div>
 
+    <div class="row g-3 mb-4">
+        <div class="col-lg-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-header">
+                    <span class="fw-semibold">
+                        <i class="bi bi-pie-chart me-1"></i>
+                        Movement Types
+                    </span>
+                </div>
+                <div class="card-body">
+                    <canvas id="movementTypeChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-header">
+                    <span class="fw-semibold">
+                        <i class="bi bi-bar-chart me-1"></i>
+                        Stock by Warehouse
+                    </span>
+                </div>
+                <div class="card-body">
+                    <canvas id="warehouseStockChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-header">
+                    <span class="fw-semibold">
+                        <i class="bi bi-graph-up me-1"></i>
+                        Movements (Last 7 Days)
+                    </span>
+                </div>
+                <div class="card-body">
+                    <canvas id="movementTrendChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="row g-3">
         <div class="col-lg-6">
             <div class="card shadow-sm h-100">
@@ -200,3 +244,74 @@
         </div>
     </div>
 </div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
+    <script>
+        // Pasta grafik: hareket tipleri
+        new Chart(document.getElementById("movementTypeChart"), {
+            type: "doughnut",
+            data: {
+                labels: ["Stock In", "Stock Out", "Transfer"],
+                datasets: [{
+                    data: [@Model.StockInCount, @Model.StockOutCount, @Model.TransferCount],
+                    backgroundColor: ["#198754", "#dc3545", "#0d6efd"]
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { position: "bottom" }
+                }
+            }
+        });
+
+        // Çubuk grafik: depo bazlı stok
+        new Chart(document.getElementById("warehouseStockChart"), {
+            type: "bar",
+            data: {
+                labels: @Html.Raw(Json.Serialize(Model.WarehouseNames)),
+                datasets: [{
+                    label: "Total Stock",
+                    data: @Html.Raw(Json.Serialize(Model.WarehouseQuantities)),
+                    backgroundColor: "#0d6efd"
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    y: { beginAtZero: true }
+                }
+            }
+        });
+
+        // Çizgi grafik: son 7 gün hareket
+        new Chart(document.getElementById("movementTrendChart"), {
+            type: "line",
+            data: {
+                labels: @Html.Raw(Json.Serialize(Model.MovementDays)),
+                datasets: [{
+                    label: "Movements",
+                    data: @Html.Raw(Json.Serialize(Model.MovementDayCounts)),
+                    borderColor: "#0d6efd",
+                    backgroundColor: "rgba(13, 110, 253, 0.1)",
+                    fill: true,
+                    tension: 0.3
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    y: { beginAtZero: true, ticks: { precision: 0 } }
+                }
+            }
+        });
+    </script>
+}

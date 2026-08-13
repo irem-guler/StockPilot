@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using StockPilot.BusinessLayer.Abstract;
 using StockPilot.Web.Models;
+using StockPilot.EntityLayer.Enums;
 
 namespace StockPilot.Web.Controllers
 {
@@ -39,6 +40,38 @@ namespace StockPilot.Web.Controllers
                 .OrderBy(stock => stock.Quantity)
                 .ToList();
 
+            
+            var stockInCount = movements.Count(m => m.MovementType == StockMovementType.StockIn);
+            var stockOutCount = movements.Count(m => m.MovementType == StockMovementType.StockOut);
+            var transferCount = movements.Count(m => m.MovementType == StockMovementType.Transfer);
+
+            
+            var warehouseGroups = inventory
+                .GroupBy(stock => stock.Warehouse.Name)
+                .Select(group => new
+                {
+                    Name = group.Key,
+                    TotalQuantity = group.Sum(stock => stock.Quantity)
+                })
+                .OrderByDescending(x => x.TotalQuantity)
+                .Take(8)
+                .ToList();
+
+            
+            var today = DateTime.UtcNow.Date;
+
+            var last7Days = Enumerable.Range(0, 7)
+                .Select(offset => today.AddDays(-6 + offset))
+                .ToList();
+
+            var movementDays = last7Days
+                .Select(day => day.ToString("MM-dd"))
+                .ToList();
+
+            var movementDayCounts = last7Days
+                .Select(day => movements.Count(m => m.MovementDateUtc.Date == day))
+                .ToList();
+
             var viewModel = new DashboardViewModel
             {
                 TotalProductCount = products.Count(product => product.IsActive),
@@ -46,7 +79,17 @@ namespace StockPilot.Web.Controllers
                 CriticalStockCount = criticalStocks.Count,
                 TotalMovementCount = movements.Count,
                 CriticalStocks = criticalStocks.Take(10).ToList(),
-                RecentMovements = movements.Take(10).ToList()
+                RecentMovements = movements.Take(10).ToList(),
+
+                StockInCount = stockInCount,
+                StockOutCount = stockOutCount,
+                TransferCount = transferCount,
+
+                WarehouseNames = warehouseGroups.Select(x => x.Name).ToList(),
+                WarehouseQuantities = warehouseGroups.Select(x => x.TotalQuantity).ToList(),
+
+                MovementDays = movementDays,
+                MovementDayCounts = movementDayCounts
             };
 
             return View(viewModel);
