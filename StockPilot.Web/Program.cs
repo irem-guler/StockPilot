@@ -43,6 +43,11 @@ builder.Services.AddScoped<IProductService, ProductManager>();
 builder.Services.AddScoped<IWarehouseService, WarehouseManager>();
 builder.Services.AddScoped<IInventoryService, InventoryManager>();
 
+builder.Services.AddScoped<ISupplierDal, SupplierRepository>();
+builder.Services.AddScoped<ISupplierService, SupplierManager>();
+builder.Services.AddScoped<ICustomerDal, CustomerRepository>();
+builder.Services.AddScoped<ICustomerService, CustomerManager>();
+
 var app = builder.Build();
 
 using (var scope = app.Services.CreateScope())
