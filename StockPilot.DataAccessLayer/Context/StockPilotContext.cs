@@ -22,6 +22,9 @@ namespace StockPilot.DataAccessLayer.Context
         public DbSet<Supplier> Suppliers { get; set; }
 
         public DbSet<Customer> Customers { get; set; }
+        public DbSet<PurchaseOrder> PurchaseOrders { get; set; }
+
+        public DbSet<PurchaseOrderItem> PurchaseOrderItems { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -54,6 +57,40 @@ namespace StockPilot.DataAccessLayer.Context
                 .WithMany(x => x.StockMovements)
                 .HasForeignKey(x => x.PerformedByUserId)
                 .OnDelete(DeleteBehavior.SetNull);
+
+            modelBuilder.Entity<PurchaseOrder>()
+    .HasOne(x => x.Supplier)
+    .WithMany()
+    .HasForeignKey(x => x.SupplierId)
+    .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<PurchaseOrder>()
+                .HasOne(x => x.Warehouse)
+                .WithMany()
+                .HasForeignKey(x => x.WarehouseId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<PurchaseOrder>()
+                .HasOne(x => x.CreatedByUser)
+                .WithMany()
+                .HasForeignKey(x => x.CreatedByUserId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            modelBuilder.Entity<PurchaseOrderItem>()
+                .HasOne(x => x.PurchaseOrder)
+                .WithMany(x => x.Items)
+                .HasForeignKey(x => x.PurchaseOrderId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<PurchaseOrderItem>()
+                .HasOne(x => x.Product)
+                .WithMany()
+                .HasForeignKey(x => x.ProductId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<PurchaseOrderItem>()
+                .Property(x => x.UnitPrice)
+                .HasPrecision(18, 2);
         }
     }
 }

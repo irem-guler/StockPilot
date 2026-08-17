@@ -48,6 +48,9 @@ builder.Services.AddScoped<ISupplierService, SupplierManager>();
 builder.Services.AddScoped<ICustomerDal, CustomerRepository>();
 builder.Services.AddScoped<ICustomerService, CustomerManager>();
 
+builder.Services.AddScoped<IPurchaseOrderDal, PurchaseOrderRepository>();
+builder.Services.AddScoped<IPurchaseOrderService, PurchaseOrderManager>();
+
 var app = builder.Build();
 
 using (var scope = app.Services.CreateScope())
