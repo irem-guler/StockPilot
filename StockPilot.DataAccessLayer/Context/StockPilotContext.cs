@@ -25,6 +25,9 @@ namespace StockPilot.DataAccessLayer.Context
         public DbSet<PurchaseOrder> PurchaseOrders { get; set; }
 
         public DbSet<PurchaseOrderItem> PurchaseOrderItems { get; set; }
+        public DbSet<SalesOrder> SalesOrders { get; set; }
+
+        public DbSet<SalesOrderItem> SalesOrderItems { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -89,6 +92,39 @@ namespace StockPilot.DataAccessLayer.Context
                 .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<PurchaseOrderItem>()
+                .Property(x => x.UnitPrice)
+                .HasPrecision(18, 2);
+            modelBuilder.Entity<SalesOrder>()
+    .HasOne(x => x.Customer)
+    .WithMany()
+    .HasForeignKey(x => x.CustomerId)
+    .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<SalesOrder>()
+                .HasOne(x => x.Warehouse)
+                .WithMany()
+                .HasForeignKey(x => x.WarehouseId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<SalesOrder>()
+                .HasOne(x => x.CreatedByUser)
+                .WithMany()
+                .HasForeignKey(x => x.CreatedByUserId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            modelBuilder.Entity<SalesOrderItem>()
+                .HasOne(x => x.SalesOrder)
+                .WithMany(x => x.Items)
+                .HasForeignKey(x => x.SalesOrderId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<SalesOrderItem>()
+                .HasOne(x => x.Product)
+                .WithMany()
+                .HasForeignKey(x => x.ProductId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<SalesOrderItem>()
                 .Property(x => x.UnitPrice)
                 .HasPrecision(18, 2);
         }

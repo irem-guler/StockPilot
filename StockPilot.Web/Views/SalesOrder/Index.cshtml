@@ -1,0 +1,105 @@
+﻿@model List<StockPilot.EntityLayer.Entities.SalesOrder>
+@using StockPilot.EntityLayer.Enums
+
+@{
+    ViewData["Title"] = "Sales Orders";
+}
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="mb-1">Sales Orders</h2>
+            <p class="text-muted mb-0">Orders shipped to customers.</p>
+        </div>
+        <a asp-controller="SalesOrder" asp-action="Create" class="btn btn-primary">
+            <i class="bi bi-plus-circle me-1"></i>New Sales Order
+        </a>
+    </div>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="bi bi-check-circle me-2"></i>@TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="bi bi-exclamation-triangle me-2"></i>@TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    @if (Model == null || !Model.Any())
+    {
+        <div class="card shadow-sm">
+            <div class="card-body text-center py-5">
+                <i class="bi bi-send fs-1 text-muted"></i>
+                <h5 class="mt-3">No sales orders yet</h5>
+                <p class="text-muted">Create your first sales order to get started.</p>
+                <a asp-controller="SalesOrder" asp-action="Create" class="btn btn-primary">
+                    <i class="bi bi-plus-circle me-1"></i>New Sales Order
+                </a>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="card shadow-sm">
+            <div class="card-header"><strong>Order List</strong></div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead>
+                            <tr>
+                                <th>Order #</th>
+                                <th>Date</th>
+                                <th>Customer</th>
+                                <th>Warehouse</th>
+                                <th class="text-end">Items</th>
+                                <th class="text-end">Total</th>
+                                <th>Status</th>
+                                <th class="text-end">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var order in Model)
+                            {
+                                <tr>
+                                    <td><strong>#@order.SalesOrderId</strong></td>
+                                    <td class="text-muted small">@order.OrderDateUtc.ToString("yyyy-MM-dd HH:mm")</td>
+                                    <td>@order.Customer?.Name</td>
+                                    <td>@order.Warehouse?.Name</td>
+                                    <td class="text-end">@order.Items.Count</td>
+                                    <td class="text-end fw-semibold">@order.TotalAmount.ToString("N2")</td>
+                                    <td>
+                                        @switch (order.Status)
+                                        {
+                                            case SalesOrderStatus.Pending:
+                                                <span class="badge bg-warning text-dark">Pending</span>
+                                                break;
+                                            case SalesOrderStatus.Shipped:
+                                                <span class="badge bg-success">Shipped</span>
+                                                break;
+                                            case SalesOrderStatus.Cancelled:
+                                                <span class="badge bg-secondary">Cancelled</span>
+                                                break;
+                                        }
+                                    </td>
+                                    <td class="text-end">
+                                        <a asp-controller="SalesOrder" asp-action="Details"
+                                           asp-route-id="@order.SalesOrderId"
+                                           class="btn btn-sm btn-outline-primary">
+                                            <i class="bi bi-eye me-1"></i>Details
+                                        </a>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    }
+</div>

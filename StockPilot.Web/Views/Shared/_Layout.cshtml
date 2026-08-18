@@ -83,6 +83,13 @@
                     <span>Purchase Orders</span>
                 </a>
 
+                <a asp-controller="SalesOrder"
+                   asp-action="Index"
+                   class="menu-item @(controller == "SalesOrder" ? "active" : "")">
+                    <i class="bi bi-send"></i>
+                    <span>Sales Orders</span>
+                </a>
+
                 <a asp-controller="Inventory"
                    asp-action="Index"
                    class="menu-item @(controller == "Inventory" && action == "Index" ? "active" : "")">
