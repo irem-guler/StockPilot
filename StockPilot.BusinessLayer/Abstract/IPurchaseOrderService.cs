@@ -11,5 +11,6 @@ namespace StockPilot.BusinessLayer.Abstract
         Task<(bool Success, string? ErrorMessage)> CreateAsync(PurchaseOrder order);
 
         Task<(bool Success, string? ErrorMessage)> CancelAsync(int id);
+        Task<(bool Success, string? ErrorMessage)> ReceiveAsync(int id, string? performedByUserId);
     }
 }

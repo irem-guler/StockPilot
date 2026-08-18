@@ -118,6 +118,15 @@
                         <i class="bi bi-x-circle me-1"></i>Cancel Order
                     </button>
                 </form>
+
+                <form asp-controller="PurchaseOrder" asp-action="Receive"
+                      asp-route-id="@Model.PurchaseOrderId" method="post"
+                      onsubmit="return confirm('Receive this order? Stock will be updated.');">
+                    @Html.AntiForgeryToken()
+                    <button type="submit" class="btn btn-success">
+                        <i class="bi bi-box-arrow-in-down me-1"></i>Receive Order
+                    </button>
+                </form>
             </div>
         }
     </div>

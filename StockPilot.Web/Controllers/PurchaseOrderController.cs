@@ -112,6 +112,28 @@ namespace StockPilot.Web.Controllers
             return RedirectToAction(nameof(Index));
         }
 
+        [Authorize(Roles = "Admin")]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Receive(int id)
+        {
+            var userId = _userManager.GetUserId(User);
+
+            var result = await _purchaseOrderService.ReceiveAsync(id, userId);
+
+            if (!result.Success)
+            {
+                TempData["ErrorMessage"] = result.ErrorMessage;
+            }
+            else
+            {
+                TempData["SuccessMessage"] =
+                    "Order received. Stock has been updated successfully.";
+            }
+
+            return RedirectToAction(nameof(Details), new { id });
+        }
+
         private async Task PopulateSelectListsAsync(CreatePurchaseOrderViewModel viewModel)
         {
             var suppliers = await _supplierService.GetAllAsync();
