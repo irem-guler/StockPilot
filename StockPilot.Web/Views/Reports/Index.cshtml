@@ -81,5 +81,69 @@
                 </div>
             </div>
         </div>
+        <div class="col-lg-6">
+            <div class="card shadow-sm h-100">
+                <div class="card-header">
+                    <span class="fw-semibold">
+                        <i class="bi bi-cart-plus me-1"></i>
+                        Purchase Orders Report
+                    </span>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted">
+                        All purchase order line items with supplier, product,
+                        quantity and price. Optionally filter by a date range.
+                    </p>
+                    <form asp-controller="Reports" asp-action="PurchaseOrdersExcel" method="get">
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Start Date</label>
+                                <input type="date" name="startDate" class="form-control" />
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">End Date</label>
+                                <input type="date" name="endDate" class="form-control" />
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-success">
+                            <i class="bi bi-file-earmark-excel me-1"></i>Download Excel
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-6">
+            <div class="card shadow-sm h-100">
+                <div class="card-header">
+                    <span class="fw-semibold">
+                        <i class="bi bi-send me-1"></i>
+                        Sales Orders Report
+                    </span>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted">
+                        All sales order line items with customer, product,
+                        quantity and price. Optionally filter by a date range.
+                    </p>
+                    <form asp-controller="Reports" asp-action="SalesOrdersExcel" method="get">
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Start Date</label>
+                                <input type="date" name="startDate" class="form-control" />
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">End Date</label>
+                                <input type="date" name="endDate" class="form-control" />
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-success">
+                            <i class="bi bi-file-earmark-excel me-1"></i>Download Excel
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
     </div>
+
 </div>

@@ -28,5 +28,19 @@ namespace StockPilot.Web.Models
         public List<string> MovementDays { get; set; } = new();
 
         public List<int> MovementDayCounts { get; set; } = new();
+        public int PendingPurchaseOrderCount { get; set; }
+
+        public int PendingSalesOrderCount { get; set; }
+
+        public decimal MonthlyPurchaseTotal { get; set; }
+
+        public decimal MonthlySalesTotal { get; set; }
+
+        public int PurchaseOrderCount { get; set; }
+
+        public int SalesOrderCount { get; set; }
+        public List<string> TopProductNames { get; set; } = new();
+
+        public List<int> TopProductQuantities { get; set; } = new();
     }
 }

@@ -13,15 +13,21 @@ namespace StockPilot.Web.Controllers
         private readonly IProductService _productService;
         private readonly IWarehouseService _warehouseService;
         private readonly IInventoryService _inventoryService;
+        private readonly IPurchaseOrderService _purchaseOrderService;
+        private readonly ISalesOrderService _salesOrderService;
 
         public HomeController(
             IProductService productService,
             IWarehouseService warehouseService,
-            IInventoryService inventoryService)
+            IInventoryService inventoryService,
+            IPurchaseOrderService purchaseOrderService,
+            ISalesOrderService salesOrderService)
         {
             _productService = productService;
             _warehouseService = warehouseService;
             _inventoryService = inventoryService;
+            _purchaseOrderService = purchaseOrderService;
+            _salesOrderService = salesOrderService;
         }
 
         public async Task<IActionResult> Index()
@@ -40,12 +46,12 @@ namespace StockPilot.Web.Controllers
                 .OrderBy(stock => stock.Quantity)
                 .ToList();
 
-            
+
             var stockInCount = movements.Count(m => m.MovementType == StockMovementType.StockIn);
             var stockOutCount = movements.Count(m => m.MovementType == StockMovementType.StockOut);
             var transferCount = movements.Count(m => m.MovementType == StockMovementType.Transfer);
 
-            
+
             var warehouseGroups = inventory
                 .GroupBy(stock => stock.Warehouse.Name)
                 .Select(group => new
@@ -57,7 +63,7 @@ namespace StockPilot.Web.Controllers
                 .Take(8)
                 .ToList();
 
-            
+
             var today = DateTime.UtcNow.Date;
 
             var last7Days = Enumerable.Range(0, 7)
@@ -70,6 +76,36 @@ namespace StockPilot.Web.Controllers
 
             var movementDayCounts = last7Days
                 .Select(day => movements.Count(m => m.MovementDateUtc.Date == day))
+                .ToList();
+
+            var purchaseOrders = await _purchaseOrderService.GetAllAsync();
+            var salesOrders = await _salesOrderService.GetAllAsync();
+
+            var firstDayOfMonth = new DateTime(
+                DateTime.UtcNow.Year, DateTime.UtcNow.Month, 1);
+
+            var pendingPurchaseCount = purchaseOrders
+                .Count(o => o.Status == PurchaseOrderStatus.Pending);
+
+            var pendingSalesCount = salesOrders
+                .Count(o => o.Status == SalesOrderStatus.Pending);
+
+            var monthlyPurchaseTotal = purchaseOrders
+                .Where(o => o.OrderDateUtc >= firstDayOfMonth
+                    && o.Status != PurchaseOrderStatus.Cancelled)
+                .Sum(o => o.Items.Sum(i => i.Quantity * i.UnitPrice));
+
+            var monthlySalesTotal = salesOrders
+                .Where(o => o.OrderDateUtc >= firstDayOfMonth
+                    && o.Status != SalesOrderStatus.Cancelled)
+                .Sum(o => o.Items.Sum(i => i.Quantity * i.UnitPrice));
+            var topProducts = salesOrders
+                .Where(o => o.Status != SalesOrderStatus.Cancelled)
+                .SelectMany(o => o.Items)
+                .GroupBy(i => i.Product != null ? i.Product.Name : "Unknown")
+                .Select(g => new { Name = g.Key, Total = g.Sum(i => i.Quantity) })
+                .OrderByDescending(x => x.Total)
+                .Take(5)
                 .ToList();
 
             var viewModel = new DashboardViewModel
@@ -89,7 +125,17 @@ namespace StockPilot.Web.Controllers
                 WarehouseQuantities = warehouseGroups.Select(x => x.TotalQuantity).ToList(),
 
                 MovementDays = movementDays,
-                MovementDayCounts = movementDayCounts
+                MovementDayCounts = movementDayCounts,
+
+                PendingPurchaseOrderCount = pendingPurchaseCount,
+                PendingSalesOrderCount = pendingSalesCount,
+                MonthlyPurchaseTotal = monthlyPurchaseTotal,
+                MonthlySalesTotal = monthlySalesTotal,
+                PurchaseOrderCount = purchaseOrders.Count,
+                SalesOrderCount = salesOrders.Count,
+
+                TopProductNames = topProducts.Select(x => x.Name).ToList(),
+                TopProductQuantities = topProducts.Select(x => x.Total).ToList()
             };
 
             return View(viewModel);
