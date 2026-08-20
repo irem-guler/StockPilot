@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using StockPilot.BusinessLayer.Abstract;
 using StockPilot.EntityLayer.Entities;
 using StockPilot.Web.Models;
+using StockPilot.Web.Services;
 
 namespace StockPilot.Web.Controllers
 {
@@ -16,12 +17,14 @@ namespace StockPilot.Web.Controllers
         private readonly IWarehouseService _warehouseService;
         private readonly IProductService _productService;
         private readonly UserManager<AppUser> _userManager;
+        private readonly OrderPdfService _pdfService;
 
         public SalesOrderController(
             ISalesOrderService salesOrderService,
             ICustomerService customerService,
             IWarehouseService warehouseService,
             IProductService productService,
+            OrderPdfService pdfService,
             UserManager<AppUser> userManager)
         {
             _salesOrderService = salesOrderService;
@@ -29,6 +32,7 @@ namespace StockPilot.Web.Controllers
             _warehouseService = warehouseService;
             _productService = productService;
             _userManager = userManager;
+            _pdfService = pdfService;
         }
 
         public async Task<IActionResult> Index()
@@ -47,6 +51,22 @@ namespace StockPilot.Web.Controllers
             }
 
             return View(order);
+        }
+
+        public async Task<IActionResult> DownloadPdf(int id)
+        {
+            var order = await _salesOrderService.GetByIdAsync(id);
+
+            if (order == null)
+            {
+                return NotFound();
+            }
+
+            var pdfBytes = _pdfService.GenerateSalesOrderPdf(order);
+
+            var fileName = $"SalesOrder_{order.SalesOrderId}.pdf";
+
+            return File(pdfBytes, "application/pdf", fileName);
         }
 
         [Authorize(Roles = "Admin")]

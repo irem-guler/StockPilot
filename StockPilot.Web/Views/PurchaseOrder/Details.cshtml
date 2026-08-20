@@ -11,9 +11,15 @@
             <h2 class="mb-1">Purchase Order #@Model.PurchaseOrderId</h2>
             <p class="text-muted mb-0">Order details and items.</p>
         </div>
-        <a asp-controller="PurchaseOrder" asp-action="Index" class="btn btn-outline-secondary">
-            <i class="bi bi-arrow-left me-1"></i>Back to Orders
-        </a>
+        <div class="d-flex gap-2">
+            <a asp-controller="PurchaseOrder" asp-action="Index" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left me-1"></i>Back to Orders
+            </a>
+            <a asp-controller="PurchaseOrder" asp-action="DownloadPdf" asp-route-id="@Model.PurchaseOrderId"
+               class="btn btn-outline-danger" target="_blank">
+                <i class="bi bi-file-earmark-pdf me-1"></i>Download PDF
+            </a>
+        </div>
     </div>
 
     <div class="row g-3 mb-4">

@@ -8,6 +8,7 @@ using StockPilot.DataAccessLayer.Context;
 using StockPilot.EntityLayer.Entities;
 
 var builder = WebApplication.CreateBuilder(args);
+QuestPDF.Settings.License = QuestPDF.Infrastructure.LicenseType.Community;
 
 builder.Services.AddControllersWithViews();
 
@@ -55,6 +56,8 @@ builder.Services.AddScoped<ISalesOrderDal, SalesOrderRepository>();
 builder.Services.AddScoped<ISalesOrderService, SalesOrderManager>();
 
 builder.Services.AddScoped<IReorderService, ReorderManager>();
+
+builder.Services.AddScoped<StockPilot.Web.Services.OrderPdfService>();
 
 var app = builder.Build();
 
