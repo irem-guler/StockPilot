@@ -70,7 +70,19 @@ body {
     flex-direction: column;
     gap: 7px;
     margin-top: 28px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    min-height: 0;
 }
+
+    .sidebar-menu::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    .sidebar-menu::-webkit-scrollbar-thumb {
+        background: rgba(255, 255, 255, 0.15);
+        border-radius: 3px;
+    }
 
 .menu-item {
     display: flex;

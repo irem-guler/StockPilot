@@ -83,6 +83,16 @@
                     <span>Purchase Orders</span>
                 </a>
 
+                @if (User.IsInRole("Admin"))
+                {
+                    <a asp-controller="Reorder"
+                       asp-action="Index"
+                       class="menu-item @(controller == "Reorder" ? "active" : "")">
+                        <i class="bi bi-lightbulb"></i>
+                        <span>Reorder Suggestions</span>
+                    </a>
+                }
+
                 <a asp-controller="SalesOrder"
                    asp-action="Index"
                    class="menu-item @(controller == "SalesOrder" ? "active" : "")">

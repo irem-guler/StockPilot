@@ -1,0 +1,154 @@
+﻿@model StockPilot.Web.Models.ReorderSuggestionViewModel
+
+@{
+    ViewData["Title"] = "Reorder Suggestions";
+}
+
+<div class="container-fluid">
+    <div class="mb-4">
+        <h2 class="mb-1">Reorder Suggestions</h2>
+        <p class="text-muted mb-0">
+            Products at or below their reorder level, with suggested order quantities.
+        </p>
+    </div>
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="bi bi-exclamation-triangle me-2"></i>@TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    @if (Model.Suggestions == null || !Model.Suggestions.Any())
+    {
+        <div class="card shadow-sm">
+            <div class="card-body text-center py-5">
+                <i class="bi bi-check-circle fs-1 text-success"></i>
+                <h5 class="mt-3">No reorder needed</h5>
+                <p class="text-muted">All products are above their reorder levels.</p>
+            </div>
+        </div>
+    }
+    else
+    {
+        <form asp-controller="Reorder" asp-action="CreateOrder" method="post">
+            @Html.AntiForgeryToken()
+
+            <div class="card shadow-sm mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <strong>Suggested Items</strong>
+                    <span class="badge bg-warning text-dark rounded-pill">
+                        @Model.Suggestions.Count items need attention
+                    </span>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead>
+                                <tr>
+                                    <th style="width: 40px;">
+                                        <input type="checkbox" id="selectAll" class="form-check-input" checked />
+                                    </th>
+                                    <th>Product</th>
+                                    <th class="text-end">Current Stock</th>
+                                    <th class="text-end">Reorder Level</th>
+                                    <th class="text-end" style="width: 140px;">Order Quantity</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in Model.Suggestions)
+                                {
+                                    <tr>
+                                        <td>
+                                            <input type="checkbox" name="selectedProductIds"
+                                                   value="@item.ProductId"
+                                                   class="form-check-input row-check" checked
+                                                   data-product="@item.ProductId" />
+                                        </td>
+                                        <td>
+                                            <strong>@item.ProductName</strong>
+                                            <span class="text-muted small">(@item.SKU)</span>
+                                        </td>
+                                        <td class="text-end">
+                                            @if (item.CurrentStock == 0)
+                                            {
+                                                <span class="badge bg-danger">0</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge bg-warning text-white">@item.CurrentStock</span>
+                                            }
+                                        </td>
+                                        <td class="text-end text-muted">@item.ReorderLevel</td>
+                                        <td class="text-end">
+                                            <input type="number" name="quantity_@item.ProductId"
+                                                   value="@item.SuggestedQuantity"
+                                                   min="1" class="form-control form-control-sm text-end qty-input"
+                                                   data-product="@item.ProductId" />
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card shadow-sm">
+                <div class="card-header"><strong>Create Purchase Order</strong></div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-5 mb-3">
+                            <label class="form-label">Supplier</label>
+                            <select name="supplierId" asp-items="Model.Suppliers" class="form-select">
+                                <option value="">Select a supplier</option>
+                            </select>
+                        </div>
+                        <div class="col-md-5 mb-3">
+                            <label class="form-label">Destination Warehouse</label>
+                            <select name="warehouseId" asp-items="Model.Warehouses" class="form-select">
+                                <option value="">Select a warehouse</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2 mb-3 d-flex align-items-end">
+                            <button type="submit" class="btn btn-primary w-100">
+                                <i class="bi bi-cart-plus me-1"></i>Create
+                            </button>
+                        </div>
+                    </div>
+                    <p class="text-muted small mb-0">
+                        Selected products will be added to a new purchase order as a draft.
+                    </p>
+                </div>
+            </div>
+        </form>
+    }
+</div>
+
+@section Scripts {
+    <script>
+        function syncRow(productId, checked) {
+            const qty = document.querySelector('.qty-input[data-product="' + productId + '"]');
+            if (qty) {
+                qty.disabled = !checked;
+            }
+        }
+
+        document.querySelectorAll(".row-check").forEach(function (cb) {
+            cb.addEventListener("change", function () {
+                syncRow(cb.getAttribute("data-product"), cb.checked);
+            });
+        });
+
+        const selectAll = document.getElementById("selectAll");
+        if (selectAll) {
+            selectAll.addEventListener("change", function () {
+                document.querySelectorAll(".row-check").forEach(function (cb) {
+                    cb.checked = selectAll.checked;
+                    syncRow(cb.getAttribute("data-product"), selectAll.checked);
+                });
+            });
+        }
+    </script>
+}
