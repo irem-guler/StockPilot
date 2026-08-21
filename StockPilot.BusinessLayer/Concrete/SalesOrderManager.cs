@@ -125,7 +125,7 @@ namespace StockPilot.BusinessLayer.Concrete
 
             order.Status = SalesOrderStatus.Cancelled;
 
-            // Sipariş Pending idi; rezerve edilen miktarları serbest bırak
+                        // Sipariş Pending idi; rezerve edilen miktarları serbest bırak
             var requiredByProduct = order.Items
                 .GroupBy(i => i.ProductId)
                 .Select(g => new { ProductId = g.Key, Total = g.Sum(i => i.Quantity) })
@@ -180,20 +180,19 @@ namespace StockPilot.BusinessLayer.Concrete
                 return (false, "The order has no items to ship.");
             }
 
-            // Önce tüm kalemler için yeterli stok var mı kontrol et
             foreach (var item in order.Items)
             {
                 var stock = await _warehouseStockDal
                     .GetByProductAndWarehouseAsync(item.ProductId, order.WarehouseId);
 
-                var available = stock?.Quantity ?? 0;
+                var physicalStock = stock?.Quantity ?? 0;
 
-                if (available < item.Quantity)
+                if (physicalStock < item.Quantity)
                 {
                     var productName = item.Product?.Name ?? $"Product #{item.ProductId}";
 
                     return (false,
-                        $"Insufficient stock for '{productName}'. Required: {item.Quantity}, available: {available}.");
+                        $"Insufficient physical stock for '{productName}'. Required: {item.Quantity}, in stock: {physicalStock}.");
                 }
             }
 

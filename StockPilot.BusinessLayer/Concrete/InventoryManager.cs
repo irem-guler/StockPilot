@@ -142,9 +142,12 @@ namespace StockPilot.BusinessLayer.Concrete
                 return (false, "There is no stock for the selected product in this warehouse.");
             }
 
-            if (warehouseStock.Quantity < quantity)
+            var availableForOut = warehouseStock.Quantity - warehouseStock.ReservedQuantity;
+
+            if (availableForOut < quantity)
             {
-                return (false, $"Insufficient stock. Available quantity is {warehouseStock.Quantity}.");
+                return (false,
+                    $"Insufficient available stock. Available (excluding reserved) is {availableForOut}.");
             }
 
             warehouseStock.Quantity -= quantity;
@@ -217,9 +220,12 @@ namespace StockPilot.BusinessLayer.Concrete
                 return (false, "There is no stock for the selected product in the source warehouse.");
             }
 
-            if (sourceStock.Quantity < quantity)
+            var availableForTransfer = sourceStock.Quantity - sourceStock.ReservedQuantity;
+
+            if (availableForTransfer < quantity)
             {
-                return (false, $"Insufficient stock in the source warehouse. Available quantity is {sourceStock.Quantity}.");
+                return (false,
+                    $"Insufficient available stock in the source warehouse. Available (excluding reserved) is {availableForTransfer}.");
             }
 
             await _stockMovementDal.BeginTransactionAsync();
