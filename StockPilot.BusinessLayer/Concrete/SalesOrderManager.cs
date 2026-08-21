@@ -62,6 +62,38 @@ namespace StockPilot.BusinessLayer.Concrete
             }
 
             order.Items = validItems;
+            
+            var requiredByProduct = validItems
+                .GroupBy(i => i.ProductId)
+                .Select(g => new { ProductId = g.Key, Total = g.Sum(i => i.Quantity) })
+                .ToList();
+
+            
+            foreach (var req in requiredByProduct)
+            {
+                var stock = await _warehouseStockDal
+                    .GetByProductAndWarehouseAsync(req.ProductId, order.WarehouseId);
+
+                var available = stock != null
+                    ? stock.Quantity - stock.ReservedQuantity
+                    : 0;
+
+                if (available < req.Total)
+                {
+                    return (false,
+                        $"Insufficient available stock for product #{req.ProductId}. Required: {req.Total}, available: {available}.");
+                }
+            }
+
+            
+            foreach (var req in requiredByProduct)
+            {
+                var stock = await _warehouseStockDal
+                    .GetByProductAndWarehouseAsync(req.ProductId, order.WarehouseId);
+
+                stock!.ReservedQuantity += req.Total;
+                _warehouseStockDal.Update(stock);
+            }
             order.Status = SalesOrderStatus.Pending;
             order.OrderDateUtc = DateTime.UtcNow;
             order.ShippedDateUtc = null;
@@ -93,7 +125,32 @@ namespace StockPilot.BusinessLayer.Concrete
 
             order.Status = SalesOrderStatus.Cancelled;
 
+            // Sipariş Pending idi; rezerve edilen miktarları serbest bırak
+            var requiredByProduct = order.Items
+                .GroupBy(i => i.ProductId)
+                .Select(g => new { ProductId = g.Key, Total = g.Sum(i => i.Quantity) })
+                .ToList();
+
+            foreach (var req in requiredByProduct)
+            {
+                var stock = await _warehouseStockDal
+                    .GetByProductAndWarehouseAsync(req.ProductId, order.WarehouseId);
+
+                if (stock != null)
+                {
+                    stock.ReservedQuantity -= req.Total;
+                    if (stock.ReservedQuantity < 0)
+                    {
+                        stock.ReservedQuantity = 0;
+                    }
+                    _warehouseStockDal.Update(stock);
+                }
+            }
+
+            order.Status = SalesOrderStatus.Cancelled;
+
             _salesOrderDal.Update(order);
+            await _warehouseStockDal.SaveChangesAsync();
             await _salesOrderDal.SaveChangesAsync();
 
             return (true, null);
@@ -150,6 +207,13 @@ namespace StockPilot.BusinessLayer.Concrete
                         .GetByProductAndWarehouseAsync(item.ProductId, order.WarehouseId);
 
                     stock!.Quantity -= item.Quantity;
+
+                    stock.ReservedQuantity -= item.Quantity;
+                    if (stock.ReservedQuantity < 0)
+                    {
+                        stock.ReservedQuantity = 0;
+                    }
+
                     _warehouseStockDal.Update(stock);
 
                     var movement = new StockMovement

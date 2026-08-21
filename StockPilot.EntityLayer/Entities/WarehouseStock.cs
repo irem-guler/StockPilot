@@ -15,6 +15,8 @@ namespace StockPilot.EntityLayer.Entities
         public int WarehouseId { get; set; }
 
         public int Quantity { get; set; }
+        public int ReservedQuantity { get; set; }
+        public int AvailableQuantity => Quantity - ReservedQuantity;
 
         public Product Product { get; set; } = null!;
 

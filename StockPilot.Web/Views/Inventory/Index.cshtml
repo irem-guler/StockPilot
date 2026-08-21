@@ -207,6 +207,8 @@
                                 <th>Warehouse</th>
                                 <th>Location</th>
                                 <th>Quantity</th>
+                                <th>Reserved</th>
+                                <th>Available</th>
                                 <th>Reorder Level</th>
                                 <th>Stock Status</th>
                             </tr>
@@ -247,6 +249,23 @@
                                     <td>
                                         <strong>
                                             @stock.Quantity
+                                        </strong>
+                                    </td>
+
+                                    <td>
+                                        @if (stock.ReservedQuantity > 0)
+                                        {
+                                            <span class="badge bg-warning text-white">@stock.ReservedQuantity</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">0</span>
+                                        }
+                                    </td>
+
+                                    <td>
+                                        <strong class="@(stock.AvailableQuantity <= 0 ? "text-danger" : "text-success")">
+                                            @stock.AvailableQuantity
                                         </strong>
                                     </td>
 
