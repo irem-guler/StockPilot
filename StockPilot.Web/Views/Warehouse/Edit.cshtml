@@ -60,6 +60,20 @@
                           class="text-danger">
                     </span>
                 </div>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="Latitude" class="form-label">Latitude</label>
+                        <input asp-for="Latitude" type="number" step="any" class="form-control"
+                               placeholder="e.g. 41.0082" />
+                        <span asp-validation-for="Latitude" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="Longitude" class="form-label">Longitude</label>
+                        <input asp-for="Longitude" type="number" step="any" class="form-control"
+                               placeholder="e.g. 28.9784" />
+                        <span asp-validation-for="Longitude" class="text-danger"></span>
+                    </div>
+                </div>
 
                 <div class="mb-3">
                     <label asp-for="Description" class="form-label">

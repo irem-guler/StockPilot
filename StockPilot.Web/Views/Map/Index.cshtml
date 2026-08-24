@@ -1,0 +1,212 @@
+﻿@model StockPilot.Web.Models.WarehouseMapViewModel
+
+@{
+    ViewData["Title"] = "Warehouse Map";
+}
+
+<div class="container-fluid">
+    <div class="mb-4">
+        <h2 class="mb-1">Warehouse Map</h2>
+        <p class="text-muted mb-0">
+            Geographic overview of warehouses, stock status and transfer flows.
+        </p>
+    </div>
+
+    @if (Model.Points == null || !Model.Points.Any())
+    {
+        <div class="card shadow-sm">
+            <div class="card-body text-center py-5">
+                <i class="bi bi-geo-alt fs-1 text-muted"></i>
+                <h5 class="mt-3">No warehouses to display</h5>
+                <p class="text-muted">
+                    Add latitude and longitude to your warehouses to see them on the map.
+                </p>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="row g-3 mb-3">
+            <div class="col-auto">
+                <span class="badge bg-success">● Healthy warehouse</span>
+            </div>
+            <div class="col-auto">
+                <span class="badge bg-danger">● Has critical stock</span>
+            </div>
+            <div class="col-auto">
+                <span class="badge bg-primary">→ Transfer flow</span>
+            </div>
+            <div class="col-auto">
+                <span class="badge bg-success">⇢ Suggested transfer</span>
+            </div>
+        </div>
+
+        <div class="card shadow-sm">
+            <div class="card-body p-0">
+                <div id="map" style="height: 600px; border-radius: 8px;"></div>
+            </div>
+        </div>
+
+        @if (Model.Suggestions != null && Model.Suggestions.Any())
+        {
+            <div class="card shadow-sm mt-3">
+                <div class="card-header">
+                    <span class="fw-semibold">
+                        <i class="bi bi-signpost-split me-1"></i>
+                        Suggested Transfers
+                    </span>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Product</th>
+                                    <th>From → To</th>
+                                    <th class="text-end">Qty</th>
+                                    <th class="text-end">Distance</th>
+                                    <th class="text-end">Duration</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var s in Model.Suggestions)
+                                {
+                                    <tr>
+                                        <td>
+                                            <strong>@s.ProductName</strong>
+                                            <span class="text-muted small">(@s.SKU)</span>
+                                        </td>
+                                        <td>
+                                            @s.FromWarehouseName
+                                            <i class="bi bi-arrow-right mx-1"></i>
+                                            @s.ToWarehouseName
+                                        </td>
+                                        <td class="text-end fw-semibold">@s.SuggestedQuantity</td>
+                                        <td class="text-end">
+                                            @s.DistanceKm km
+                                            @if (s.IsApproximate)
+                                            {
+                                                <span class="badge bg-secondary ms-1">approx.</span>
+                                            }
+                                        </td>
+                                        <td class="text-end">
+                                            @if (s.IsApproximate)
+                                            {
+                                                <span class="text-muted">-</span>
+                                            }
+                                            else
+                                            {
+                                                <span>~@Math.Round(s.DurationMinutes) min</span>
+                                            }
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        }
+    }
+</div>
+
+@section Styles {
+    <link rel="stylesheet"
+          href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+}
+
+@section Scripts {
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        const warehouses = @Html.Raw(Json.Serialize(Model.Points));
+        const flows = @Html.Raw(Json.Serialize(Model.Flows));
+        const suggestions = @Html.Raw(Json.Serialize(Model.Suggestions));
+
+        const map = L.map("map").setView([39.0, 35.0], 6);
+
+        L.tileLayer("https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png", {
+            attribution: "© OpenStreetMap © CARTO",
+            subdomains: "abcd",
+            maxZoom: 19
+        }).addTo(map);
+
+        // Geçmiş transfer hatları (mavi düz)
+        let maxQty = 1;
+        flows.forEach(function (f) {
+            if (f.totalQuantity > maxQty) maxQty = f.totalQuantity;
+        });
+
+        flows.forEach(function (f) {
+            const weight = 2 + (f.totalQuantity / maxQty) * 6;
+            const line = L.polyline(
+                [[f.fromLatitude, f.fromLongitude], [f.toLatitude, f.toLongitude]],
+                { color: "#0d6efd", weight: weight, opacity: 0.5 }
+            ).addTo(map);
+
+            line.bindPopup(`
+                <div style="font-size: 13px;">
+                    <strong>${f.fromName} → ${f.toName}</strong><br/>
+                    Total transferred: <strong>${f.totalQuantity}</strong><br/>
+                    Transfers: <strong>${f.transferCount}</strong>
+                </div>
+            `);
+        });
+
+        // Önerilen transfer hatları (yeşil kesikli)
+        suggestions.forEach(function (s) {
+            const line = L.polyline(
+                [[s.fromLat, s.fromLng], [s.toLat, s.toLng]],
+                { color: "#198754", weight: 3, opacity: 0.7, dashArray: "8, 8" }
+            ).addTo(map);
+
+            const durationText = s.isApproximate
+                ? "(approx. distance)"
+                : `~${Math.round(s.durationMinutes)} min`;
+
+            line.bindPopup(`
+                <div style="font-size: 13px;">
+                    <strong style="color:#198754;">Suggested transfer</strong><br/>
+                    ${s.productName}<br/>
+                    ${s.fromWarehouseName} → ${s.toWarehouseName}<br/>
+                    Quantity: <strong>${s.suggestedQuantity}</strong><br/>
+                    Distance: <strong>${s.distanceKm} km</strong> ${durationText}
+                </div>
+            `);
+        });
+
+        // Depo pinleri (en üstte)
+        warehouses.forEach(function (w) {
+            let statusColor = "#198754";
+            if (w.criticalCount > 0) statusColor = "#dc3545";
+
+            const marker = L.circleMarker([w.latitude, w.longitude], {
+                radius: 10, fillColor: statusColor, color: "#fff",
+                weight: 2, opacity: 1, fillOpacity: 0.9
+            }).addTo(map);
+
+            marker.bindPopup(`
+                <div style="min-width: 180px;">
+                    <div style="font-weight: 600; font-size: 14px; margin-bottom: 6px;">
+                        ${w.name}
+                    </div>
+                    <div style="color: #6c757d; font-size: 12px; margin-bottom: 8px;">
+                        ${w.location}
+                    </div>
+                    <div style="font-size: 13px;">
+                        <div>Total Stock: <strong>${w.totalStock}</strong></div>
+                        <div>Products: <strong>${w.productCount}</strong></div>
+                        <div>Critical Items:
+                            <strong style="color: ${w.criticalCount > 0 ? '#dc3545' : '#198754'};">
+                                ${w.criticalCount}
+                            </strong>
+                        </div>
+                    </div>
+                    <a href="/Inventory?warehouseId=${w.warehouseId}"
+                       style="display: inline-block; margin-top: 8px; font-size: 12px;">
+                        View Inventory →
+                    </a>
+                </div>
+            `);
+        });
+    </script>
+}

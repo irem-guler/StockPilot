@@ -59,6 +59,8 @@ builder.Services.AddScoped<IReorderService, ReorderManager>();
 
 builder.Services.AddScoped<StockPilot.Web.Services.OrderPdfService>();
 
+builder.Services.AddHttpClient<StockPilot.Web.Services.DistanceService>();
+
 var app = builder.Build();
 
 using (var scope = app.Services.CreateScope())

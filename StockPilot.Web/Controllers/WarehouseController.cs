@@ -121,6 +121,8 @@ namespace StockPilot.Web.Controllers
 
             existingWarehouse.Name = warehouse.Name;
             existingWarehouse.Location = warehouse.Location;
+            existingWarehouse.Latitude = warehouse.Latitude;
+            existingWarehouse.Longitude = warehouse.Longitude;
             existingWarehouse.Description = warehouse.Description;
             existingWarehouse.IsActive = warehouse.IsActive;
 

@@ -107,6 +107,13 @@
                     <span>Inventory</span>
                 </a>
 
+                <a asp-controller="Map"
+                   asp-action="Index"
+                   class="menu-item @(controller == "Map" ? "active" : "")">
+                    <i class="bi bi-geo-alt"></i>
+                    <span>Warehouse Map</span>
+                </a>
+
                 <a asp-controller="Inventory"
                    asp-action="MovementHistory"
                    class="menu-item @(controller == "Inventory" && action == "MovementHistory" ? "active" : "")">
