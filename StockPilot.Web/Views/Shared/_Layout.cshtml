@@ -127,6 +127,16 @@
                     <i class="bi bi-bar-chart-fill"></i>
                     <span>Reports</span>
                 </a>
+
+                @if (User.IsInRole("Admin"))
+                {
+                    <a asp-controller="Valuation"
+                       asp-action="Index"
+                       class="menu-item @(controller == "Valuation" ? "active" : "")">
+                        <i class="bi bi-cash-stack"></i>
+                        <span>Stock Valuation</span>
+                    </a>
+                }
                 @if (User.IsInRole("Admin"))
                 {
                     <a asp-controller="Users"
@@ -188,6 +198,11 @@
                 @if (User.Identity?.IsAuthenticated == true)
                 {
                     <div class="user-area">
+
+                        <button type="button" id="themeToggle" class="theme-toggle me-2" title="Toggle theme">
+                            <i class="bi bi-moon-stars"></i>
+                        </button>
+
                         <div class="user-avatar">
                             <i class="bi bi-person-fill"></i>
                         </div>
@@ -283,6 +298,35 @@
         window.addEventListener("resize", applySidebarState);
 
         applySidebarState();
+    </script>
+
+    <script>
+        (function () {
+            const body = document.body;
+            const toggle = document.getElementById("themeToggle");
+
+            // Sayfa yüklenince kayıtlı tercihi uygula
+            const savedTheme = localStorage.getItem("stockpilot-theme");
+            if (savedTheme === "dark") {
+                body.classList.add("dark-mode");
+                updateIcon(true);
+            }
+
+            function updateIcon(isDark) {
+                if (!toggle) return;
+                const icon = toggle.querySelector("i");
+                if (!icon) return;
+                icon.className = isDark ? "bi bi-sun-fill" : "bi bi-moon-stars";
+            }
+
+            if (toggle) {
+                toggle.addEventListener("click", function () {
+                    const isDark = body.classList.toggle("dark-mode");
+                    localStorage.setItem("stockpilot-theme", isDark ? "dark" : "light");
+                    updateIcon(isDark);
+                });
+            }
+        })();
     </script>
 
     @await RenderSectionAsync("Scripts", required: false)

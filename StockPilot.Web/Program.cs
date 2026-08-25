@@ -61,6 +61,8 @@ builder.Services.AddScoped<StockPilot.Web.Services.OrderPdfService>();
 
 builder.Services.AddHttpClient<StockPilot.Web.Services.DistanceService>();
 
+builder.Services.AddScoped<IValuationService, ValuationManager>();
+
 var app = builder.Build();
 
 using (var scope = app.Services.CreateScope())
