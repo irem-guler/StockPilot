@@ -63,6 +63,9 @@ builder.Services.AddHttpClient<StockPilot.Web.Services.DistanceService>();
 
 builder.Services.AddScoped<IValuationService, ValuationManager>();
 
+builder.Services.AddScoped<StockPilot.Web.Services.AssistantDataService>();
+builder.Services.AddScoped<StockPilot.Web.Services.AssistantService>();
+
 var app = builder.Build();
 
 using (var scope = app.Services.CreateScope())

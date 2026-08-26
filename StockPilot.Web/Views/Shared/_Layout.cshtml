@@ -41,6 +41,13 @@
 
             <nav class="sidebar-menu">
 
+                <a asp-controller="Assistant"
+                   asp-action="Index"
+                   class="menu-item @(controller == "Assistant" ? "active" : "")">
+                    <i class="bi bi-robot"></i>
+                    <span>AI Assistant</span>
+                </a>
+
                 <a asp-controller="Home"
                    asp-action="Index"
                    class="menu-item @(controller == "Home" ? "active" : "")">

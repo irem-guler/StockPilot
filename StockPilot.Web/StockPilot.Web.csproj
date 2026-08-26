@@ -7,6 +7,7 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="8.0.23" />
+    <PackageReference Include="OpenAI" Version="2.13.0" />
     <PackageReference Include="QuestPDF" Version="2026.7.3" />
   </ItemGroup>
 
@@ -20,6 +21,7 @@
     <TargetFramework>net8.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+    <UserSecretsId>79ce4201-1430-4a22-b24a-35b0b26bb7ce</UserSecretsId>
   </PropertyGroup>
 
 </Project>
