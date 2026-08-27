@@ -13,6 +13,22 @@
         </p>
     </div>
 
+    <div class="card shadow-sm mb-4 ai-summary-card">
+        <div class="card-body">
+            <div class="d-flex align-items-center justify-content-between mb-2">
+                <span class="fw-semibold">
+                    <i class="bi bi-robot text-primary me-2"></i>AI Daily Summary
+                </span>
+                <button id="aiSummaryBtn" class="btn btn-sm btn-outline-primary">
+                    <i class="bi bi-stars me-1"></i>Generate
+                </button>
+            </div>
+            <div id="aiSummaryContent" class="text-muted">
+                Click "Generate" to get an AI-written summary of your current inventory status.
+            </div>
+        </div>
+    </div>
+
     <div class="row g-3 mb-4">
         <div class="col-md-3 col-sm-6">
             <div class="card shadow-sm h-100">
@@ -434,5 +450,32 @@
                 scales: { x: { beginAtZero: true, ticks: { precision: 0 } } }
             }
         });
+    </script>
+
+    <script>
+        (function () {
+            const btn = document.getElementById("aiSummaryBtn");
+            const content = document.getElementById("aiSummaryContent");
+            if (!btn) return;
+
+            btn.addEventListener("click", async function () {
+                btn.disabled = true;
+                content.textContent = "Generating summary...";
+                content.style.fontStyle = "italic";
+
+                try {
+                    const res = await fetch("/Home/AiSummary");
+                    const data = await res.json();
+                    content.style.fontStyle = "normal";
+                    content.textContent = data.summary;
+                    content.classList.remove("text-muted");
+                } catch (e) {
+                    content.style.fontStyle = "normal";
+                    content.textContent = "Could not generate summary. Please try again.";
+                } finally {
+                    btn.disabled = false;
+                }
+            });
+        })();
     </script>
 }

@@ -15,19 +15,23 @@ namespace StockPilot.Web.Controllers
         private readonly IInventoryService _inventoryService;
         private readonly IPurchaseOrderService _purchaseOrderService;
         private readonly ISalesOrderService _salesOrderService;
+        private readonly StockPilot.Web.Services.AssistantService _assistantService;
 
         public HomeController(
             IProductService productService,
             IWarehouseService warehouseService,
             IInventoryService inventoryService,
             IPurchaseOrderService purchaseOrderService,
-            ISalesOrderService salesOrderService)
+            ISalesOrderService salesOrderService,
+            StockPilot.Web.Services.AssistantService assistantService)
+
         {
             _productService = productService;
             _warehouseService = warehouseService;
             _inventoryService = inventoryService;
             _purchaseOrderService = purchaseOrderService;
             _salesOrderService = salesOrderService;
+            _assistantService = assistantService;
         }
 
         public async Task<IActionResult> Index()
@@ -141,6 +145,17 @@ namespace StockPilot.Web.Controllers
             return View(viewModel);
         }
 
+        [HttpGet]
+        public async Task<IActionResult> AiSummary()
+        {
+            var prompt =
+                "Give me a short daily summary of my inventory status. " +
+                "Mention critical stock, pending orders and total inventory value if relevant. " +
+                "Keep it to 2-3 sentences, friendly and clear.";
+
+            var summary = await _assistantService.AskAsync(prompt);
+            return Json(new { summary });
+        }
         public IActionResult Privacy()
         {
             return View();
